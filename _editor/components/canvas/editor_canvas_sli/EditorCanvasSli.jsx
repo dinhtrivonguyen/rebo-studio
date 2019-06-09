@@ -15,6 +15,11 @@ import ReactResizeDetector from 'react-resize-detector';
 import i18n from 'i18next';
 import { SnapGrid } from './SnapGrid';
 import { ID_PREFIX_BOX } from '../../../../common/constants';
+
+import { loadTheme, getThemeColors } from '../../../../common/themes/theme_loader';
+import ThemeCSS from '../../../../common/themes/ThemeCSS';
+import { loadBackground, loadBackgroundStyle } from "../../../../common/themes/background_loader";
+
 /**
  * EditorCanvasSli component
  * Canvas component to display slides
@@ -52,15 +57,17 @@ export default class EditorCanvasSli extends Component {
             actualHeight = parseInt(maincontent.scrollHeight, 10);
             actualHeight = (parseInt(maincontent.clientHeight, 10) < actualHeight) ? (actualHeight) + 'px' : '100%';
         }
+
+        let styleConfig = this.props.styleConfig;
         let toolbar = this.props.viewToolbars[itemSelected.id];
+        let theme = !toolbar || !toolbar.theme ? (styleConfig && styleConfig.theme ? styleConfig.theme : 'default') : toolbar.theme;
         let overlayHeight = actualHeight ? actualHeight : '100%';
         let boxes = itemSelected ? itemSelected.boxes : [];
-        let backgroundIsUri = toolbar && (/data\:/).test(toolbar.background);
-        let isColor = toolbar && (/rgb[a]?\(\d+\,\d+\,\d+(\,\d)?\)/).test(toolbar.background);
+
         let gridOn = this.props.grid && ((this.props.containedViewSelected !== 0) === this.props.fromCV);
         return (
             <Col id={this.props.fromCV ? 'containedCanvas' : 'canvas'} md={12} xs={12}
-                className="canvasSliClass" onMouseDown={()=>{this.props.onBoxSelected(-1);}}
+                className="canvasSliClass safeZone" onMouseDown={()=>{this.props.onBoxSelected(-1);}}
                 style={{ display: this.props.containedViewSelected !== 0 && !this.props.fromCV ? 'none' : 'initial',
                     fontSize: this.state.fontBase ? (this.state.fontBase + 'px') : '14px',
                 }}>
@@ -79,12 +86,9 @@ export default class EditorCanvasSli extends Component {
 
                             e.stopPropagation();
                         }}
-                        className={'innercanvas sli'}
-                        style={{ visibility: (this.props.showCanvas ? 'visible' : 'hidden'), background: isColor ? toolbar.background : '', zIndex: '0',
-                            backgroundImage: (!isColor && toolbar && toolbar.background) ? 'url(' + toolbar.background + ')' : '',
-                            backgroundSize: (toolbar && toolbar.background && (toolbar.backgroundAttr === 'centered' || toolbar.backgroundAttr === 'repeat')) ? (toolbar.backgroundZoom !== undefined ? (toolbar.backgroundZoom + '%') : '100%') : 'cover',
-                            backgroundRepeat: (toolbar && toolbar.background && (toolbar.backgroundAttr === 'centered' || toolbar.backgroundAttr === 'full')) ? 'no-repeat' : 'repeat',
-                            backgroundPosition: (toolbar && toolbar.background && (toolbar.backgroundAttr === 'centered' || toolbar.backgroundAttr === 'full')) ? 'center center' : '0% 0%' }}>
+                        className={'innercanvas sli ' + theme}
+                        style={ itemSelected.id !== 0 ? loadBackgroundStyle(this.props.showCanvas, toolbar, styleConfig, false, this.props.aspectRatio, itemSelected.background) : {} }
+                    >
                         {this.state.alert}
                         {gridOn ? <div style={{ zIndex: '-1' }} onClick={()=>{this.props.onBoxSelected(-1);}}><SnapGrid key={this.props.fromCV}/></div> : null}
                         <EditorHeader titles={titles}
@@ -147,14 +151,20 @@ export default class EditorCanvasSli extends Component {
                                 onRichMarksModalToggled={this.props.onRichMarksModalToggled}
                                 onTextEditorToggled={this.props.onTextEditorToggled}
                                 setCorrectAnswer={this.props.setCorrectAnswer}
+                                themeColors={toolbar.colors ? toolbar.colors : getThemeColors(theme)}
                                 pageType={itemSelected.type || 0}
                             />;
-
                         })}
 
                     </div>
 
                 </div>
+                <ThemeCSS
+                    aspectRatio = {this.props.aspectRatio}
+                    styleConfig={this.props.styleConfig}
+                    theme={ theme }
+                    toolbar = {{ ...toolbar, colors: toolbar && toolbar.colors ? toolbar.colors : {} }}
+                />
                 <ReactResizeDetector handleWidth handleHeight onResize={(e)=>{
                     let calculated = this.aspectRatio(this.props, this.state);
                     this.setState({ fontBase: changeFontBase(calculated.width) });
@@ -467,4 +477,12 @@ EditorCanvasSli.propTypes = {
      * Function that opens the file search modal
      */
     openFileModal: PropTypes.func.isRequired,
+    /**
+     * Object containing style configuration
+     */
+    styleConfig: PropTypes.object,
+    /**
+     * Aspect ratio of slides
+     */
+    aspectRatio: PropTypes.number,
 };

@@ -130,9 +130,6 @@ export function HotspotImages(base) {
         },
         getInitialState: function() {
             return {
-                // url: 'http://nemanjakovacevic.net/wp-content/uploads/2013/07/placeholder.png'
-                // url:'http://www.amicus.nieruchomosci.pl/grafika/no-image.png'
-                // url: 'https://bytesizemoments.com/wp-content/uploads/2014/04/placeholder.png'
                 url: img_placeholder, // Ediphy.Config.image_placeholder,
                 allowDeformed: true,
             };

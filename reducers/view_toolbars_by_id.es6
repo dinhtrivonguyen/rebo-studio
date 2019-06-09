@@ -11,6 +11,9 @@ import {
 } from '../common/utils';
 import Utils from "../common/utils";
 
+import { loadBackground } from "../common/themes/background_loader";
+import { getColor } from "../common/themes/theme_loader";
+
 function toolbarElementCreator(state, action, containedView = false) {
     let doc_type;
     let id = containedView ? action.payload.mark.connection : action.payload.id;
@@ -39,8 +42,13 @@ function toolbarElementCreator(state, action, containedView = false) {
 
     let name = action.payload.name ? action.payload.name : containedView ? action.payload.toolbar.viewName : doc_type;
     // name =nextAvailName(name, state, 'viewName');
-    let background = action.payload.background ? action.payload.background.background : "#ffffff";
-    let backgroundAttr = action.payload.background ? action.payload.background.backgroundAttr : "";
+    let theme = action.payload.theme ? action.payload.theme : 'default';
+    let font = action.payload.font ? action.payload.font : 'Ubuntu';
+    let themeBackground = action.payload.themeBackground ? action.payload.themeBackground : 0;
+    let background = action.payload.background ? action.payload.background.background : loadBackground(theme, themeBackground);
+    let backgroundAttr = action.payload.background ? action.payload.background.backgroundAttr : "full";
+    let customBackground = action.payload.background ? action.payload.background.customBackground : false;
+
     let toolbar = {
         id: id,
         breadcrumb: isSlide(type) ? 'hidden' : 'reduced',
@@ -55,8 +63,14 @@ function toolbarElementCreator(state, action, containedView = false) {
         numPageContent: action.payload.position || "",
         customSize: 0,
         aspectRatio: true,
-        background: background || "#ffffff",
-        backgroundAttr: backgroundAttr || "",
+        background: background || loadBackground(theme, 0),
+        backgroundAttr: backgroundAttr || "full",
+        customBackground: customBackground || false,
+        // theme: theme || 'default',
+        themeBackground: themeBackground || 0,
+        // font: font || 'Ubuntu',
+        colors: {
+        },
     };
 
     return toolbar;

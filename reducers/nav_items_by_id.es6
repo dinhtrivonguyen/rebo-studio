@@ -21,6 +21,7 @@ function navItemCreator(state = {}, action = {}) {
         hidden: state[action.payload.parent].hidden,
         extraFiles: {},
         customSize: action.payload.customSize,
+        background: action.payload.background,
     };
 }
 function singleNavItemReducer(state = {}, action = {}) {

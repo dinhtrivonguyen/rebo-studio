@@ -16,6 +16,7 @@ export default function printToPDF(state, callback, options = { forcePageBreak: 
     let viewToolbars = state.viewToolbarsById;
     let pluginToolbars = state.pluginToolbarsById;
     let globalConfig = state.globalConfig;
+    let styleConfig = state.styleConfig;
     let exercises = state.exercises;
     let title = globalConfig.title || 'Ediphy';
     let canvasRatio = globalConfig.canvasRatio;
@@ -88,7 +89,7 @@ export default function printToPDF(state, callback, options = { forcePageBreak: 
     });
 
     addHTML = function(navs, last) {
-        let elementClass = "pageToPrint";
+        let elementClass = "pageToPrint " + currentView + ' ';
         let requiresFullPage = false;
         let currentView = navs[0];
         let assignUpDown = true;
@@ -527,7 +528,7 @@ export default function printToPDF(state, callback, options = { forcePageBreak: 
         let props = {
             boxes, changeCurrentView: (element) => {
             }, canvasRatio, containedViews,
-            currentView, navItems, viewToolbars, pluginToolbars, title, triggeredMarks: [],
+            currentView, navItems, viewToolbars, styleConfig, pluginToolbars, title, triggeredMarks: [],
             showCanvas: (!isContainedView(currentView)), removeLastView: () => {
             }, richElementsState: {},
             viewsArray: [currentView], setAnswer: () => {

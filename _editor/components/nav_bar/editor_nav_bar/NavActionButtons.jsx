@@ -37,6 +37,16 @@ export default class NavActionButtons extends Component {
                 },
             },
             {
+                name: 'appearance',
+                description: i18n.t("Style.style"),
+                tooltip: i18n.t("Style.edit"),
+                display: true,
+                icon: 'brush',
+                onClick: () => {
+                    this.props.toggleStyleConfig();
+                },
+            },
+            {
                 name: 'undo',
                 description: i18n.t('Undo'),
                 tooltip: i18n.t('messages.undo'),
@@ -262,4 +272,8 @@ NavActionButtons.propTypes = {
      * Function for selecting a box
      */
     onBoxSelected: PropTypes.func.isRequired,
+    /**
+     * Function for opening/closing Style config modal
+     */
+    toggleStyleConfig: PropTypes.func.isRequired,
 };

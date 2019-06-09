@@ -12,14 +12,12 @@ export default class VisorCanvas extends Component {
             (<VisorCanvasSli key="0" {...this.props} />) :
             (<VisorCanvasDoc key="0" {...this.props} />),
         <Watermark ediphy_document_id={this.props.ediphy_document_id} ediphy_platform={this.props.ediphy_platform} key={"1"}/>];
-
     }
 
     componentDidUpdate() {
         if (window.MathJax) {
             window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
         }
-
     }
 
 }

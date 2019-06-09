@@ -41,6 +41,7 @@ export default class EditorBox extends Component {
      * @returns {code} React rendered component
      */
     render() {
+
         let cornerSize = 15;
         let box = this.props.boxes[this.props.id];
         let toolbar = this.props.pluginToolbars[this.props.id];
@@ -67,8 +68,6 @@ export default class EditorBox extends Component {
             textareaStyle.textAlign = "left";
             style.textAlign = "left";
         }
-        let container = box.parent;
-        // let controls = apiPlugin.getToolbar();
         let marks = {};
         Object.keys(this.props.marks || {}).forEach(mark =>{
             if(this.props.marks[mark].origin === this.props.id) {

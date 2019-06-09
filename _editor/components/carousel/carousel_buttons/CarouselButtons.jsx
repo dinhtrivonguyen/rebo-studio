@@ -160,17 +160,6 @@ export default class CarouselButtons extends Component {
                         disabled={isContainedView(this.props.indexSelected)}
                         onClick={e => {
                             this.toggleTemplatesModal();
-                            // let newId = ID_PREFIX_PAGE + Date.now();
-                            // this.props.onNavItemAdded(
-                            //     newId,
-                            //     i18n.t("slide"),
-                            //     this.getParent().id,
-                            //     PAGE_TYPES.SLIDE,
-                            //     this.calculatePosition(),
-                            //     "rgb(255,255,255)",
-                            //     0,
-                            // );
-                            // this.props.onIndexSelected(newId);
                         }}><i className="material-icons">slideshow</i>
                     </Button>
                 </OverlayTrigger>
@@ -245,6 +234,7 @@ export default class CarouselButtons extends Component {
                 <TemplatesModal
                     show={this.state.showTemplates}
                     close={this.toggleTemplatesModal}
+                    styleConfig={this.props.styleConfig}
                     navItems={this.props.navItems}
                     boxes={this.props.boxes}
                     onNavItemAdded={(id, name, type, color, num, extra)=> {this.props.onNavItemAdded(id, name, this.getParent().id, type, this.calculatePosition(), color, num, extra); this.expandSiblings(this.getParent().id);}}
@@ -318,4 +308,8 @@ CarouselButtons.propTypes = {
      * Duplicate nav item
      */
     onNavItemDuplicated: PropTypes.func.isRequired,
+    /**
+     * Object containing style configuration
+     */
+    styleConfig: PropTypes.object,
 };

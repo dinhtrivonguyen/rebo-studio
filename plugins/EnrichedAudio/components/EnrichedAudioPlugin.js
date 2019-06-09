@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertHMStoSeconds, pad } from '../../../common/common_tools';
+import { convertHMStoSeconds, pad, setRgbaAlpha } from '../../../common/common_tools';
 
 import { findDOMNode } from 'react-dom';
 // import ReactAudioPlayer from 'react-audio-player';
@@ -19,7 +19,6 @@ export default class BasicAudioPlugin extends React.Component {
             duration: 1,
             waves: this.props.state.waves,
             autoplay: this.props.state.autoplay,
-            // audioPeaks: null,
             ondas: null,
             toBeTriggered: [],
             triggering: false,
@@ -130,14 +129,15 @@ export default class BasicAudioPlugin extends React.Component {
         }
     }
     render() {
+        let color = this.props.state.progressColor.custom ? this.props.state.progressColor.color : this.props.props.themeColors.themeColor1;
+
         const waveOptions = {
             scrollParent: false, // muestra toda la onda
             hideScrollbar: false,
-            progressColor: this.props.state.progressColor,
-            waveColor: this.props.state.waveColor,
+            progressColor: color,
+            waveColor: setRgbaAlpha(color, 0.5),
             normalize: true,
             barWidth: (this.props.state.barWidth > 0 ? this.props.state.barWidth : undefined),
-            // peaks: this.state.peaks,
             cursorColor: 'grey',
             height: this.props.state.waves ? 128 : 0,
         };
@@ -149,14 +149,15 @@ export default class BasicAudioPlugin extends React.Component {
             let duration = this.state.duration;
             let value = (secondsValue * 100 / duration) + "%";
             let title = marks[id].title;
-            let color = marks[id].color;
+            let markColor = marks[id].color;
+            let themeColor = this.props.state.progressColor.custom ? this.props.state.progressColor.color : this.props.props.themeColors.themeColor1;
             let isPopUp = marks[id].connectMode === "popup";
             let noTrigger = false;
             let isVisor = true;
             return(
-                <div key={id} className="audioMark" style={{ background: color || "#17CFC8", left: value, position: "absolute" }} >
+                <div key={id} className="audioMark" style={{ background: markColor || themeColor || "#17CFC8", left: value, position: "absolute" }} >
                     <Mark style={{ position: 'relative', top: "-1.7em", left: "-1em" }}
-                        color={color || "#17CFC8"}
+                        color={markColor || themeColor || "#17CFC8"}
                         idKey={id}
                         title={title}
                         isVisor={isVisor}
@@ -182,7 +183,6 @@ export default class BasicAudioPlugin extends React.Component {
                             width="100%"
                             audioFile={this.props.state.url}
                             playing={this.state.playing}
-                            // audioPeaks={this.state.audioPeaks}
                             volume={this.state.volume}
                             options={waveOptions}
                             pos={this.state.pos}

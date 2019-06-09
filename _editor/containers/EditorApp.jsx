@@ -8,7 +8,7 @@ import {
     resizeSortableContainer, deleteSortableContainer, changeCols, changeRows, changeBackground, changeSortableProps,
     reorderBoxes, verticallyAlignBox, selectIndex, duplicateNavItem,
     toggleTextEditor, pasteBox, changeBoxLayer,
-    configScore, exportStateAsync, importStateAsync, importState, changeGlobalConfig,
+    configScore, exportStateAsync, importStateAsync, importState, changeGlobalConfig, changeStyleConfig,
     uploadVishResourceAsync, importEdi,
     deleteContainedView, selectContainedView,
     addRichMark, editRichMark, moveRichMark, deleteRichMark, setCorrectAnswer,
@@ -52,6 +52,7 @@ import Cookies from 'universal-cookie';
 import ExitModal from "../components/exit_modal/ExitModal";
 import { DragDropContext } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
+import toMoodleXML from "../../core/editor/moodle_xml.es6";
 const cookies = new Cookies();
 
 /**
@@ -78,6 +79,7 @@ class EditorApp extends Component {
             pluginConfigModal: false,
             publishing: false,
             showGlobalConfig: false, // cookies.get("ediphy_visitor"),
+            showStyleConfig: false,
             blockDrag: false,
             showFileUpload: false,
             fileUploadTab: 0,
@@ -136,7 +138,7 @@ class EditorApp extends Component {
     render() {
         const { dispatch, boxes, boxSelected, boxLevelSelected, navItemsIds, navItems, navItemSelected,
             containedViews, containedViewSelected, filesUploaded, indexSelected, exercises,
-            undoDisabled, redoDisabled, displayMode, isBusy, pluginToolbars, viewToolbars, marks, lastActionDispatched, globalConfig } = this.props;
+            undoDisabled, redoDisabled, displayMode, isBusy, pluginToolbars, viewToolbars, marks, lastActionDispatched, globalConfig, styleConfig } = this.props;
         let ribbonHeight = this.state.hideTab === 'hide' ? 0 : 50;
         let title = globalConfig.title || '---';
         let status = this.props.status;
@@ -156,9 +158,13 @@ class EditorApp extends Component {
                         onBoxSelected={(id) => dispatch(selectBox(id, boxes[id]))}
                         showGlobalConfig={this.state.showGlobalConfig}
                         toggleGlobalConfig={()=>{this.setState({ showGlobalConfig: !this.state.showGlobalConfig });}}
+                        showStyleConfig={this.state.showStyleConfig}
+                        toggleStyleConfig={()=>{this.setState({ showStyleConfig: !this.state.showStyleConfig });}}
                         onBoxAdded={(ids, draggable, resizable, content, style, state, structure, initialParams) => dispatch(addBox(ids, draggable, resizable, content, style, state, structure, initialParams))}
                         globalConfig={{ ...globalConfig, status, everPublished }}
+                        styleConfig={{ ...styleConfig }}
                         changeGlobalConfig={(prop, value) => {dispatch(changeGlobalConfig(prop, value));}}
+                        changeStyleConfig={(prop, value) => {dispatch(changeStyleConfig(prop, value));}}
                         onIndexSelected={(id) => dispatch(selectIndex(id))}
                         onNavItemSelected={id => dispatch(selectNavItem(id))}
                         onNavItemAdded={(id, name, parent, type, position, background, customSize, hideTitles, hasContent, sortable_id) => dispatch(addNavItem(id, name, parent, type, position, background, customSize, hideTitles, (type !== 'section' || (type === 'section' && Ediphy.Config.sections_have_content)), sortable_id))}
@@ -183,6 +189,9 @@ class EditorApp extends Component {
                         export={(format, callback, options = false) => {
                             if(format === "PDF") {
                                 printToPDF(this.props.store.getState().undoGroup.present, callback, options);
+                            } else if (format === "MoodleXML") {
+                                console.log(this.props.store.getState().undoGroup.present);
+                                toMoodleXML(this.props.store.getState().undoGroup.present, callback, options);
                             } else if (format === "edi") {
                                 Ediphy.Visor.exportsEDI({ ...this.props.store.getState().undoGroup.present, filesUploaded: this.props.store.getState().filesUploaded }, callback);
                             } else {
@@ -216,6 +225,7 @@ class EditorApp extends Component {
                         navItemSelected={navItemSelected}
                         displayMode={displayMode}
                         viewToolbars={viewToolbars}
+                        styleConfig={styleConfig}
                         onBoxAdded={(ids, draggable, resizable, content, style, state, structure, initialParams) => dispatch(addBox(ids, draggable, resizable, content, style, state, structure, initialParams))}
                         onIndexSelected={(id) => dispatch(selectIndex(id))}
                         onContainedViewNameChanged={(id, titleStr) => dispatch(updateViewToolbar(id, titleStr))}
@@ -316,6 +326,8 @@ class EditorApp extends Component {
                                 pluginToolbars={pluginToolbars}
                                 viewToolbars={viewToolbars}
                                 title={title}
+                                aspectRatio={globalConfig.canvasRatio}
+                                styleConfig={{ ...styleConfig }}
                                 onToolbarUpdated={this.toolbarUpdated}
                                 onRichMarkMoved={(mark, value)=>dispatch(moveRichMark(mark, value))}
                                 markCreatorId={this.state.markCreatorVisible}
@@ -481,6 +493,7 @@ class EditorApp extends Component {
                     isBusy={isBusy}
                     marks={marks}
                     exercises={exercises}
+                    styleConfig={{ ...styleConfig }}
                     onContainedViewNameChanged={(id, titleStr) => dispatch(updateViewToolbar(id, titleStr))}
                     onBackgroundChanged={(id, background) => dispatch(changeBackground(id, background))}
                     onNavItemToggled={ id => dispatch(toggleNavItem(navItemSelected)) }
@@ -941,6 +954,7 @@ function mapStateToProps(state) {
         status: state.status,
         everPublished: state.everPublished,
         globalConfig: state.undoGroup.present.globalConfig,
+        styleConfig: state.undoGroup.present.styleConfig,
         filesUploaded: state.filesUploaded,
         boxes: state.undoGroup.present.boxesById,
         boxSelected: state.undoGroup.present.boxSelected,
@@ -971,6 +985,7 @@ export default connect(mapStateToProps)(EditorApp);
 
 EditorApp.propTypes = {
     globalConfig: PropTypes.object.isRequired,
+    styleConfig: PropTypes.object,
     filesUploaded: PropTypes.any,
     boxes: PropTypes.object.isRequired,
     boxSelected: PropTypes.any,

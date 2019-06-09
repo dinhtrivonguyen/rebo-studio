@@ -135,6 +135,7 @@ let es = {
             'Title': 'Importar recurso...',
         },
         "fullscreen": "Fullscreen",
+        "general": "Generales",
         "global_config": {
             "Accept": "Guardar cambios",
             "aspect_ratio": "Relación de aspecto en diapositivas",
@@ -457,7 +458,20 @@ let es = {
         "subtitle_hide": "Ocultar Subtítulo",
         "success_transaction": "La operación se ha realizado correctamente",
         "Structure": "Estructura",
-        "Style": "Estilo",
+        "Style": {
+            "accent_color": "Accent Color",
+            "appearance": "Apariencia",
+            "edit": "Editar apariencia y transiciones",
+            "font": "Fuente",
+            "preview": "Previsualización",
+            "restore_theme_color": "Restaurar color del tema",
+            "restore_theme_setup": "Restaurar configuración del tema",
+            "style": "Estilo",
+            "style_configuration": "Configuración del tema",
+            "theme": "Tema",
+            "theme_background": "Fondo del tema",
+            "transitions": "Transiciones",
+        },
         "styles": {
             "background_color": "Color de fondo",
             "PluginName": "Imagen Básica",
@@ -495,6 +509,7 @@ let es = {
             "template9": "Respuesta múltiple",
             "template10": "Respuesta abierta",
             "template11": "Verdad./falso",
+            "template12": "Título",
             "template0": "En blanco",
         },
         "export": {

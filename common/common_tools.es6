@@ -329,8 +329,8 @@ export function toColor(rgba) {
         return { newColor: newColor, alpha: oldColor[4] * 100 };
     }
     return { newColor: rgba, alpha: 100 };
-
 }
+
 export function translateLicense(license) {
     let dict = {
         "public": "Public Domain",
@@ -344,7 +344,7 @@ export function translateLicense(license) {
     return dict[license];
 }
 
-export function setRgbaAlpha(color, alpha) {
+export function setRgbaAlpha(color, alpha = 0.15) {
     if (color) {
         if (color.charAt(0) === "#") {
             let cutHex = color.substring(1, 7);

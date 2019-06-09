@@ -16,6 +16,8 @@ import { isContainedView, isView, isSection, isPage } from '../../common/utils';
 import ScormComponent from '../components/score/GradeComponent';
 import i18n from '../../locales/i18n';
 
+import { Animated } from "react-animated-css";
+
 require('es6-promise').polyfill();
 import 'typeface-ubuntu';
 import 'typeface-source-sans-pro';
@@ -204,7 +206,7 @@ export default class Visor extends Component {
         if (window.State) {
             Ediphy.State = serialize({ "present": { ...window.State } }).present;
         }
-        let { boxSelected, navItemsIds, globalConfig, containedViewsById, boxesById, marksById, navItemsById, viewToolbarsById, pluginToolbarsById } = Ediphy.State;
+        let { boxSelected, navItemsIds, globalConfig, styleConfig, containedViewsById, boxesById, marksById, navItemsById, viewToolbarsById, pluginToolbarsById } = Ediphy.State;
         let ediphy_document_id = Ediphy.State.id;
         let ediphy_platform = Ediphy.State.platform;
         let exercises = {};
@@ -247,16 +249,20 @@ export default class Visor extends Component {
             ediphy_document_id,
             ediphy_platform,
             exercises,
+            styleConfig,
         };
 
         let navItemComponents = Object.keys(navItemsById).filter(nav=>isPage(nav)).map((nav, i)=>{
-            return <VisorCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} showCanvas={nav.indexOf("cv-") === -1} />;
+            return (
+                <VisorCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} showCanvas={nav.indexOf("cv-") === -1} />
+            );
         });
         let cvComponents = Object.keys(containedViewsById).map((nav, i)=>{
             return <VisorContainedCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} showCanvas={nav.indexOf("cv-") !== -1} />;
         });
 
         let content = [...navItemComponents, cvComponents];
+        console.log(content);
         let empty = <div className="emptyPresentation">{i18n.t("EmptyPresentation")}</div>;
         let visorNavButtonClass = 'hoverPlayerSelector';
         visorNavButtonClass = this.state.mouseMoving ? visorNavButtonClass + ' appearButton' : visorNavButtonClass + ' fadeButton';
@@ -294,6 +300,7 @@ export default class Visor extends Component {
                                     currentView={currentView}
                                     navItemsById={navItemsById}
                                     globalConfig={globalConfig}
+                                    styleConfig={styleConfig}
                                     exercises={exercises}
                                     pluginToolbars={pluginToolbarsById}
                                     fromScorm={this.state.fromScorm}

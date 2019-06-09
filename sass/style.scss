@@ -46,6 +46,10 @@ $material-font-path:  '../node_modules/material-design-icons-font/iconfont/';
 }
 /*Right column with ribbon and canvas */
 
+body{
+    font-family: 'Ubuntu', 'Helvetica Neue', 'Arial';
+}
+
 
 #colRight{
     overflow:hidden;
@@ -160,7 +164,7 @@ button, i{
 .no_margins {
     margin: 0;
     font-size: 1.8em;
-    color: $blueprimary;
+    //color: $blueprimary;
 }
 /* alert */
 .alert{
@@ -227,7 +231,6 @@ body {
 
 .radio {
     position: relative;
-    //display: inline-block;
     line-height: 1.7em;
     margin: 5px 0;
     input[type="radio"]{
@@ -265,27 +268,54 @@ input[type="radio"]{
 
 
 
-    .setting-title {
-        color: $blueprimary !important;
-        font-weight: bold;
-    }
-    .print-settings-explanation {
-        margin-left: 15px;
-    }
-    .material-icons.correct {
-        font-size: 1.7em;
-    }
+.setting-title {
+    color: $blueprimary !important;
+    font-weight: bold;
+}
+.print-settings-explanation {
+    margin-left: 15px;
+}
+.material-icons.correct {
+    font-size: 1.7em;
+}
 
-    .panel-group .panel {
-        border-radius: 0px;
-    }
+.panel-group .panel {
+    border-radius: 0px;
+}
 
-    .panel-heading {
-        border-top-left-radius: 0px;
-        border-top-right-radius: 0px;
+.panel-heading {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
 
-    }
-    .material-icons.correct {
-        font-size: 1.7em;
-    }
+}
+
+//transition code
+//-------------------------------
+
+.enter {
+    opacity: 0.01;
+}
+
+.enter.enter-active {
+    opacity: 1;
+    transition: opacity 500ms ease-in;
+
+}
+
+.leave {
+    opacity: 1;
+}
+
+.leave.leave-active {
+    opacity: 0.01;
+    transition: opacity 300ms ease-in;
+}
+.appear {
+    opacity: 0.01;
+}
+
+.appear.appear-active {
+    opacity: 1;
+    transition: opacity .5s ease-in;
+}
 

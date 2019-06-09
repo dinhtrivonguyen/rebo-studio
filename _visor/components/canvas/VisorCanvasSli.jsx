@@ -11,6 +11,14 @@ import ReactResizeDetector from 'react-resize-detector';
 import { isContainedView, isView } from '../../../common/utils';
 import i18n from 'i18next';
 import ReactDOM from 'react-dom';
+import { Animated } from "react-animated-css";
+
+import { loadBackgroundStyle } from "../../../common/themes/background_loader";
+import ThemeCSS from '../../../common/themes/ThemeCSS';
+import { getThemeColors } from "../../../common/themes/theme_loader";
+import EditorBox from "../../../_editor/components/canvas/editor_canvas_sli/EditorCanvasSli";
+import { TRANSITIONS } from "../../../common/themes/transitions/transitions";
+
 export default class VisorCanvasSli extends Component {
     constructor(props) {
         super(props);
@@ -20,15 +28,20 @@ export default class VisorCanvasSli extends Component {
             marginTop: 0,
             marginBottom: 0,
             fontBase: 14,
+            previousView: '',
         };
     }
 
     render() {
-
         let titles = [];
         let itemSelected = this.props.navItems[this.props.currentView] || this.props.containedViews[this.props.currentView];
         let isCV = !isView(this.props.currentView);
         let toolbar = this.props.viewToolbars[this.props.currentView];
+
+        let styleConfig = this.props.styleConfig;
+        console.log(styleConfig);
+        let theme = !toolbar || !toolbar.theme ? (styleConfig && styleConfig.theme ? styleConfig.theme : 'default') : toolbar.theme;
+        let colors = toolbar.colors ? toolbar.colors : getThemeColors(theme);
 
         if (itemSelected !== 0 && !isCV) {
             let title = this.props.viewToolbars[this.props.currentView].viewName;
@@ -53,9 +66,6 @@ export default class VisorCanvasSli extends Component {
         let boxes = isCV ? this.props.containedViews[this.props.currentView].boxes || [] : this.props.navItems[this.props.currentView].boxes || [];
         let thisView = this.props.viewsArray && this.props.viewsArray.length > 1 ? (i18n.t('messages.go_back_to') + (isContainedView(this.props.viewsArray[this.props.viewsArray.length - 2]) ? this.props.viewToolbars[this.props.viewsArray[this.props.viewsArray.length - 2]].viewName : this.props.viewToolbars[this.props.viewsArray[this.props.viewsArray.length - 2]].viewName)) : i18n.t('messages.go_back');
 
-        let backgroundIsUri = (/data\:/).test(toolbar.background);
-        let isColor = (/rgb[a]?\(\d+\,\d+\,\d+(\,\d)?\)/).test(toolbar.background);
-
         const tooltip = (
             <Tooltip id="tooltip">{thisView}</Tooltip>
         );
@@ -65,7 +75,7 @@ export default class VisorCanvasSli extends Component {
         let padding = (this.props.fromPDF ? '0px' : '0px');
 
         return (
-            <Col id={(isCV ? "containedCanvas_" : "canvas_") + this.props.currentView} md={12} xs={12} className={(isCV ? "containedCanvasClass " : "canvasClass ") + " canvasSliClass " + (isCV ? animationType : "") + (this.props.show ? "" : " hidden")}
+            <Col ref={"canvas_" + this.props.currentView} id={(isCV ? "containedCanvas_" : "canvas_") + this.props.currentView} md={12} xs={12} className={(isCV ? "containedCanvasClass " : "canvasClass ") + " canvasSliClass safeZone " + (isCV ? animationType : "") + (this.props.show || this.props.currentView === this.state.previousView ? "" : " hidden")}
                 style={{ display: 'initial', width: '100%', padding, fontSize: this.state.fontBase ? (this.state.fontBase + 'px') : '14px' }}>
 
                 <div id={(isCV ? 'airlayer_cv_' : 'airlayer_') + this.props.currentView}
@@ -74,58 +84,74 @@ export default class VisorCanvasSli extends Component {
                         width: this.state.width, height: this.state.height, marginTop: this.state.marginTop, marginBottom: this.state.marginBottom,
                     }}>
 
-                    <div id={isCV ? "contained_maincontent" : "maincontent"}
-                        className={'innercanvas sli'}
-                        style={{ visibility: (this.props.showCanvas ? 'visible' : 'hidden'),
-                            background: isColor ? toolbar.background : '',
-                            backgroundImage: !isColor ? 'url(' + toolbar.background + ')' : '',
-                            backgroundSize: (toolbar && toolbar.background && (toolbar.backgroundAttr === 'centered' || toolbar.backgroundAttr === 'repeat')) ? (toolbar.backgroundZoom !== undefined ? (toolbar.backgroundZoom + '%') : '100%') : 'cover',
-                            backgroundRepeat: toolbar.backgroundAttr === 'centered' ? 'no-repeat' : 'repeat',
-                            backgroundPosition: toolbar.backgroundAttr === 'centered' || toolbar.backgroundAttr === 'full' ? 'center center' : '0% 0%' }}>
-                        {isCV ? (< OverlayTrigger placement="bottom" overlay={tooltip}>
-                            <a href="#" className="btnOverBar cvBackButton" style={{ pointerEvents: this.props.viewsArray.length > 1 ? 'initial' : 'none', color: this.props.viewsArray.length > 1 ? 'black' : 'gray' }} onClick={a => {
-                                ReactDOM.findDOMNode(this).classList.add("exitCanvas");
-                                setTimeout(function() {
-                                    this.props.removeLastView();
-                                }.bind(this), 500);
-
-                                a.stopPropagation();
-                            }}><i className="material-icons">close</i></a></OverlayTrigger>) : (<span />)}
-                        <VisorHeader titles={titles}
-                            onShowTitle={()=>this.setState({ showTitle: true })}
-                            courseTitle={this.props.title}
-                            titleMode={itemSelected.titleMode}
-                            navItems={this.props.navItems}
-                            currentView={this.props.currentView}
-                            viewToolbar={this.props.viewToolbars[this.props.currentView]}
-                            containedViews={this.props.containedViews}
-                            showButton/>
-                        <br/>
-
-                        {boxes.map(id => {
-                            let box = this.props.boxes[id];
-                            return <VisorBox key={id}
-                                id={id}
-                                show={this.props.show}
-                                exercises={(exercises && exercises.exercises) ? exercises.exercises[id] : undefined}
-                                boxes={this.props.boxes}
-                                changeCurrentView={(element)=>{this.props.changeCurrentView(element);}}
+                    <Animated
+                        key={this.props.currentView}
+                        animationIn={this.props.styleConfig.hasOwnProperty('transition') ? TRANSITIONS[this.props.styleConfig.transition].transition.in : ''}
+                        animationOut={this.props.styleConfig.hasOwnProperty('transition') ? TRANSITIONS[this.props.styleConfig.transition].transition.out : ''}
+                        isVisible={this.props.showC}
+                        style={{ height: '100%', width: '100%' }}
+                    >
+                        <div id={isCV ? "contained_maincontent" : "maincontent"}
+                            className={'innercanvas sli ' + theme + ' ' + this.props.currentView}
+                            style={loadBackgroundStyle(this.props.showCanvas, toolbar, styleConfig, true, this.props.canvasRatio, itemSelected.background)}>
+                            {isCV ? (< OverlayTrigger placement="bottom" overlay={tooltip}>
+                                <a href="#" className="btnOverBar cvBackButton" style={{ pointerEvents: this.props.viewsArray.length > 1 ? 'initial' : 'none', color: this.props.viewsArray.length > 1 ? 'black' : 'gray' }} onClick={a => {
+                                    ReactDOM.findDOMNode(this).classList.add("exitCanvas");
+                                    setTimeout(function() {
+                                        this.props.removeLastView();
+                                    }.bind(this), 500);
+                                    a.stopPropagation();
+                                }}><i className="material-icons">close</i></a></OverlayTrigger>) : (<span />)}
+                            <VisorHeader titles={titles}
+                                onShowTitle={()=>this.setState({ showTitle: true })}
+                                courseTitle={this.props.title}
+                                titleMode={itemSelected.titleMode}
+                                navItems={this.props.navItems}
                                 currentView={this.props.currentView}
-                                fromScorm={this.props.fromScorm}
-                                toolbars={this.props.pluginToolbars}
-                                marks={this.props.marks}
-                                setAnswer={this.props.setAnswer}
-                                onMarkClicked={this.props.onMarkClicked}
-                                richElementsState={this.props.richElementsState}/>;
-                        })}
+                                viewToolbar={this.props.viewToolbars[this.props.currentView]}
+                                containedViews={this.props.containedViews}
+                                showButton/>
+                            <br/>
 
-                        {this.props.fromPDF || !exercises || !exercises.exercises ? null : <div className={"pageFooter" + (!exercises || !exercises.exercises || Object.keys(exercises.exercises).length === 0 ? " hidden" : "")}>
-                            <SubmitButton onSubmit={()=>{this.props.submitPage(this.props.currentView);}} exercises={exercises} />
-                            <Score exercises={exercises}/>
-                        </div>}
+                            {boxes.map(id => {
+                                return <VisorBox key={id}
+                                    id={id}
+                                    show={this.props.show}
+                                    exercises={(exercises && exercises.exercises) ? exercises.exercises[id] : undefined}
+                                    boxes={this.props.boxes}
+                                    changeCurrentView={(element)=>{this.props.changeCurrentView(element);}}
+                                    currentView={this.props.currentView}
+                                    fromScorm={this.props.fromScorm}
+                                    toolbars={this.props.pluginToolbars}
+                                    marks={this.props.marks}
+                                    setAnswer={this.props.setAnswer}
+                                    onMarkClicked={this.props.onMarkClicked}
+                                    richElementsState={this.props.richElementsState}
+                                    themeColors={colors}
+                                />;
+                            })}
 
-                    </div>
+                            {this.props.fromPDF || !exercises || !exercises.exercises ? null : <div className={"pageFooter" + (!exercises || !exercises.exercises || Object.keys(exercises.exercises).length === 0 ? " hidden" : "")}>
+                                <SubmitButton onSubmit={()=>{this.props.submitPage(this.props.currentView);}} exercises={exercises} />
+                                <Score exercises={exercises}/>
+                            </div>}
+
+                        </div>
+                    </Animated>
+
                 </div>
+
+                {this.props.show ?
+                    (<ThemeCSS
+                        styleConfig={this.props.styleConfig}
+                        aspectRatio = {this.props.aspectRatio}
+                        theme={ theme }
+                        toolbar = {{ ...toolbar, colors: colors }}
+                        template = { itemSelected.backgorund ? itemSelected.backgorund : 0 }
+                        fromPDF={this.props.fromPDF}
+                        currentView={this.props.currentView}
+                    />) : null}
+
                 <ReactResizeDetector handleWidth handleHeight onResize={(e)=>{
                     if (!this.props.fromPDF) {
                         let calculated = this.aspectRatio(this.props, this.state);
@@ -182,10 +208,16 @@ export default class VisorCanvasSli extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
+        if(nextProps.show && !this.props.show) {
+            console.log('Me encienden y soy ' + nextProps.currentView);
+        } else if (!nextProps.show && this.props.show) {
+            console.log('Me apagan y soy ' + nextProps.currentView);
+            console.log(this.props, this.state);
+            // this.setState( { previousView: nextProps.currentView }, () => setTimeout(()=> this.setState( {previousView: '' }), 1000));
+        }
         let itemSel = this.props.navItems[this.props.currentView] || this.props.containedViews[this.props.currentView];
         let nextItemSel = nextProps.navItems[nextProps.currentView] || nextProps.containedViews[nextProps.currentView];
         if ((this.props.canvasRatio !== nextProps.canvasRatio) || (itemSel !== nextItemSel)) {
-            let isCV = !isView(nextProps.currentView);
             window.canvasRatio = nextProps.canvasRatio;
             let calculated = this.aspectRatio(nextProps, nextState);
             this.setState({ fontBase: changeFontBase(calculated.width) });
@@ -283,4 +315,8 @@ VisorCanvasSli.propTypes = {
      * Indicates the expected width for PDF exportation.
      */
     expectedWidth: PropTypes.number,
+    /**
+     * General style config
+     */
+    styleConfig: PropTypes.object,
 };
