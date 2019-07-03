@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import style from './ItemRenderer.scss';
 import EditorIndexTitle from "./editor_index_title/EditorIndexTitle";
@@ -49,26 +49,30 @@ const File = ({ name, collapsed, id, path, navItems, onNavItemNameChanged, viewT
     </div>);
 };
 
-const ItemRenderer = (props) => {
-    const { id, navItemSelected, connectDragSource, connectDragPreview, connectDropTarget, type, onIndexSelected, onNavItemSelected }
-        = props;
-    const collapsed = props.collapsed ? 'collapsed ' : '';
-    const selected = type === 'file' && id === navItemSelected ? 'selected ' : ' ';
-    return connectDragSource(connectDragPreview(connectDropTarget(
-        <div className={"carousselContainer " + collapsed + selected + 'is' + type}
-            onMouseDown={e => {
-                onIndexSelected(id);
-                // e.stopPropagation();
-            }}
-            onDoubleClick={e => {
-                onNavItemSelected(id);
-                e.stopPropagation();
-            }}>
-            {type === 'folder' && <Folder {...props} />}
-            {type === 'file' && <File {...props} />}
-        </div>,
-    )));
-};
+class ItemRenderer extends Component {
+
+    render() {
+        const { id, navItemSelected, connectDragSource, connectDragPreview, connectDropTarget, type } = this.props;
+        const collapsed = this.props.collapsed ? 'collapsed ' : '';
+        const selected = type === 'file' && id === navItemSelected ? 'selected ' : ' ';
+
+        return connectDragSource(connectDragPreview(connectDropTarget(
+            <div className={"carousselContainer " + collapsed + selected + 'is' + type}
+                onMouseDown={this.onMouseDown}
+                onDoubleClick={this.onDoubleClick}>
+                {type === 'folder' && <Folder {...this.props} />}
+                {type === 'file' && <File {...this.props} />}
+            </div>,
+        )));
+    }
+
+    onMouseDown = e => this.props.onIndexSelected(this.props.id);
+
+    onDoubleClick = e => {
+        this.props.onNavItemSelected(this.props.id);
+        e.stopPropagation();
+    };
+}
 
 ItemRenderer.propTypes = {
     /**

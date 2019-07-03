@@ -9,38 +9,26 @@ import { renderAccordion } from "../../../../core/editor/accordion_provider";
 
 import { getThemes, getPrimaryColor, sanitizeThemeToolbar } from "../../../../common/themes/theme_loader";
 import { getThemeBackgrounds } from "../../../../common/themes/background_loader";
+import { connect } from "react-redux";
+import Toolbar from "../toolbar/Toolbar";
 
-export default class ViewToolbar extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        };
-    }
+class ViewToolbar extends Component {
 
     render() {
-        let id = this.props.containedViewSelected !== 0 ? this.props.containedViewSelected : this.props.navItemSelected;
-        let pageObj = this.props.containedViewSelected !== 0 ? this.props.containedViews[this.props.containedViewSelected] : this.props.navItems[this.props.navItemSelected];
+        const { containedViewSelected, containedViews, styleConfig,
+            navItemSelected, navItems, viewToolbars, exercises } = this.props;
+        let id = containedViewSelected !== 0 ? containedViewSelected : navItemSelected;
+        let pageObj = containedViewSelected !== 0 ? containedViews[containedViewSelected] : navItems[navItemSelected];
         let type = pageObj.type;
-        let isContainedView = this.props.containedViewSelected !== 0;
-        let doc_type = '';
-        if (isPage(id)) {
-            doc_type = i18n.t('page');
-        }
-        if(isSlide(type)) {
-            doc_type = i18n.t('slide');
-        }
+        let isContainedView = containedViewSelected !== 0;
 
-        if(isSection(id)) {
-            doc_type = i18n.t('section');
-        }
-
-        let viewToolbar = sanitizeThemeToolbar(this.props.viewToolbars[id], this.props.styleConfig);
-        let styleConfig = this.props.styleConfig;
+        let doc_type = this.getDocType(type, id);
+        let viewToolbar = sanitizeThemeToolbar(viewToolbars[id], styleConfig);
 
         let controls = {
             main: {
                 __name: "Main",
-                accordions: { // define accordions for section
+                accordions: {
                     __basic: {
                         __name: i18n.t("general"),
                         icon: 'settings',
@@ -86,9 +74,7 @@ export default class ViewToolbar extends Component {
                                 display: false,
                                 value: viewToolbar.documentSubtitleContent,
                             },
-
                         },
-
                     },
                     __background: {
                         __name: i18n.t("Style.appearance"),
@@ -117,14 +103,6 @@ export default class ViewToolbar extends Component {
                                 type: 'background_picker',
                                 value: { background: viewToolbar.background, backgroundAttr: viewToolbar.background_attr } || { background: "#ffffff", backgroundAttr: "full" },
                             },
-
-                            // theme_background: {
-                            //     __name: i18n.t("Style.theme_background"),
-                            //     type: 'select',
-                            //     options: getThemeBackgrounds(viewToolbar.theme),
-                            //     value: viewToolbar.theme_background,
-                            // },
-
                         },
                     },
                     __score: {
@@ -136,7 +114,7 @@ export default class ViewToolbar extends Component {
                                 type: 'number',
                                 min: 1,
                                 __defaultField: true,
-                                value: this.props.exercises.weight,
+                                value: exercises.weight,
                             },
                         },
                     },
@@ -172,11 +150,11 @@ export default class ViewToolbar extends Component {
             };
         }
 
-        if (!isCanvasElement(this.props.navItemSelected, Ediphy.Config.sections_have_content)) {
+        if (!isCanvasElement(navItemSelected, Ediphy.Config.sections_have_content)) {
             return (null);
         }
         // when no plugin selected, but new navitem
-        let toolbar = sanitizeThemeToolbar(this.props.viewToolbars[id]);
+        let toolbar = sanitizeThemeToolbar(viewToolbars[id]);
 
         return Object.keys(controls).map((tabKey, index) => {
             let tab = controls[tabKey];
@@ -199,6 +177,16 @@ export default class ViewToolbar extends Component {
         });
     }
 
+    getDocType = (type, id) => isPage(id) ? i18n.t('page') : isSlide(type) ? i18n.t('slide') : isSection(id) ? i18n.t('section') : '';
+
+}
+
+export default connect(mapStateToProps)(ViewToolbar);
+
+function mapStateToProps(state) {
+    return {
+        styleConfig: state.undoGroup.present.styleConfig,
+    };
 }
 
 ViewToolbar.propTypes = {
@@ -227,7 +215,7 @@ ViewToolbar.propTypes = {
     */
     viewToolbars: PropTypes.object,
     /**
-     * General style config
+     * Style config params
      */
     styleConfig: PropTypes.object,
 };

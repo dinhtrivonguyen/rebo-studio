@@ -12,17 +12,9 @@ import screenfull from 'screenfull';
  * Visor's navigation buttons
  */
 export default class VisorPlayer extends Component {
-    constructor(props) {
-        super(props);
-        /**
-         * Component's initial state
-         * @type {{isFullScreenOn: *}}
-         */
-        this.state = {
-            isFullScreenOn: isFullScreenOn(),
-        };
-        this.checkFullScreen = this.checkFullScreen.bind(this);
-    }
+    state = {
+        isFullScreenOn: isFullScreenOn(),
+    };
 
     /**
      * Render React Component
@@ -34,9 +26,7 @@ export default class VisorPlayer extends Component {
             navItemsIds = this.props.navItemsIds.filter(this.isntSection);
         }
 
-        let navItemsById = this.props.navItemsById;
         let navItemSelected = this.getCurrentNavItem(this.props.currentViews);
-
         let index = navItemsIds.indexOf(navItemSelected);
         let maxIndex = navItemsIds.length;
 
@@ -62,7 +52,7 @@ export default class VisorPlayer extends Component {
                                 <Button className="playerButton"
                                     bsStyle="primary"
                                     disabled={index === 0 || maxIndex === 0}
-                                    onClick={(e)=>{this.props.changeCurrentView(navItemsIds[Math.max(index - 1, 0)]);}}>
+                                    onClick={(e)=>{this.props.changeCurrentView(navItemsIds[Math.max(index - 1, 0)], true);}}>
                                     <i className="material-icons">chevron_left</i>
                                 </Button>
                             </OverlayTrigger>
@@ -80,7 +70,7 @@ export default class VisorPlayer extends Component {
                                 <Button className="playerButton"
                                     bsStyle="primary"
                                     disabled={index === maxIndex - 1 || maxIndex === 0}
-                                    onClick={(e)=>{this.props.changeCurrentView(navItemsIds[Math.min(index + 1, maxIndex - 1)]);}}>
+                                    onClick={(e)=>{this.props.changeCurrentView(navItemsIds[Math.min(index + 1, maxIndex - 1)], false);}}>
                                     <i className="material-icons">chevron_right</i>
                                 </Button>
                             </OverlayTrigger>
@@ -144,10 +134,9 @@ export default class VisorPlayer extends Component {
         return null;
     }
 
-    checkFullScreen() {
+    checkFullScreen = () => {
         this.setState({ isFullScreenOn: !this.state.isFullScreenOn });
-    }
-
+    };
 }
 
 VisorPlayer.propTypes = {
@@ -163,10 +152,6 @@ VisorPlayer.propTypes = {
      * Dictionary that contains all views and contained views. The key for each value is the identifier of the view
      */
     currentViews: PropTypes.array.isRequired,
-    /**
-     * Dictionary that contains all views. The key for each value is the identifier of the view
-     */
-    navItemsById: PropTypes.object.isRequired,
     /**
      * Objects Array that contains all created views (identified by its *id*)
      */

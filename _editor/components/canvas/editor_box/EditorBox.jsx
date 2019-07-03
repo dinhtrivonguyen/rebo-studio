@@ -20,22 +20,12 @@ let html2json = require('html2json').html2json;
  * Ediphy Box component.
  * @desc It is the main and more complex component by far. It is the one in charge of painting a plugin's template and therefore it has many parts conditioned to the type of plugin.
  */
-export default class EditorBox extends Component {
+class EditorBox extends Component {
     /**
      * Constructor
      * @param props React component props
      */
-    constructor(props) {
-        super(props);
-        /**
-         * Box border size
-         * @type {number}
-         */
-        this.borderSize = 2;
-        this.blurTextarea = this.blurTextarea.bind(this);
-        this.rotate = this.rotate.bind(this);
-    }
-
+    state = { borderSize: 2 };
     /**
      * Renders React Component
      * @returns {code} React rendered component
@@ -49,18 +39,14 @@ export default class EditorBox extends Component {
         let style = {
             visibility: (toolbar.showTextEditor ? 'hidden' : 'visible'),
             overflow: 'hidden',
-
         };
 
         let textareaStyle = {
             height: (toolbar.showTextEditor ? '100%' : '100%'),
             display: (toolbar.showTextEditor ? 'block' : 'none'),
         };
-        let attrs = {};
-        let width = toolbar.structure.width;
-        let height = toolbar.structure.height;
-        let widthUnit = toolbar.structure.widthUnit;
-        let heightUnit = toolbar.structure.heightUnit;
+        let attrs, marks = {};
+        let { width, height, widthUnit, heightUnit } = toolbar.structure;
         let classNames = "";
         let apiPlugin = Ediphy.Plugins.get(toolbar.pluginId);
         let config = apiPlugin.getConfig();
@@ -68,7 +54,6 @@ export default class EditorBox extends Component {
             textareaStyle.textAlign = "left";
             style.textAlign = "left";
         }
-        let marks = {};
         Object.keys(this.props.marks || {}).forEach(mark =>{
             if(this.props.marks[mark].origin === this.props.id) {
                 marks[mark] = this.props.marks[mark];
@@ -282,9 +267,9 @@ export default class EditorBox extends Component {
     /**
      * Blurs text area and saves data
      */
-    blurTextarea(text, data) {
+    blurTextarea = (text, data) => {
         this.props.onTextEditorToggled(this.props.id, false, text, data);
-    }
+    };
 
     /**
      * Checks if aspect ratio should be kept when resizing the box
@@ -774,10 +759,9 @@ export default class EditorBox extends Component {
      */
     componentWillUnmount() {
         interact(ReactDOM.findDOMNode(this)).unset();
-
     }
 
-    rotate() {
+    rotate = () => {
         let rotate = 'rotate(0deg) ';
         let toolbar = this.props.pluginToolbars[this.props.id];
         if (!(this.props.markCreatorId && this.props.id === this.props.boxSelected)) {
@@ -786,8 +770,10 @@ export default class EditorBox extends Component {
             }
         }
         return rotate;
-    }
+    };
 }
+
+export default EditorBox;
 
 EditorBox.propTypes = {
     /**

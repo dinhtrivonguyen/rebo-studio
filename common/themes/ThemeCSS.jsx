@@ -4,25 +4,13 @@ import { getThemeColors, getThemeFont, getThemeImages, THEMES, generateThemes } 
 import loadFont from './font_loader';
 import { setRgbaAlpha } from "../common_tools";
 import { translatePxToEm } from "./cssParser";
-
 export default class ThemeCSS extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            css: '',
-            themesStartIndex: {},
-            currentThemeCSS: '',
-        };
-        this.loadCSS = this.loadCSS.bind(this);
-        this.processCSS = this.processCSS.bind(this);
-        this.getThemeCSS = this.getThemeCSS.bind(this);
-        this.updateCustomProperty = this.updateCustomProperty.bind(this);
-        this.loadColorsCustomProperties = this.loadColorsCustomProperties.bind(this);
-        this.loadImagesCustomProperties = this.loadImagesCustomProperties.bind(this);
-
-        this.loadCSS();
-    }
+    state = {
+        css: '',
+        themesStartIndex: {},
+        currentThemeCSS: '',
+    };
 
     componentWillMount() {
         this.loadCSS();
@@ -75,10 +63,6 @@ export default class ThemeCSS extends React.Component {
     }
 
     componentDidMount() {
-        if(this.props.fromPDF) {
-            let theme = this.props.theme ? this.props.theme : this.props.styleConfig.theme;
-        }
-
         let isCustomFont = this.props.toolbar && this.props.toolbar.font;
         let font = isCustomFont ? this.props.toolbar.font : this.props.styleConfig.font;
 
@@ -90,19 +74,26 @@ export default class ThemeCSS extends React.Component {
         this.updateCustomProperty('--themePrimaryFont', font);
     }
 
-    loadCSS() {
+    loadCSS = () => {
+
         // TODO check si carga
         fetch(`./theme.css`) // Webpack output CSS
-            .then(res => res.text())
+            .then(res => {
+                if(!res.ok) {
+                    throw new Error('Error');
+                }
+                return res.text();
+            })
             .then(data => {
                 let processedData = this.processCSS(data);
                 this.setState({ themesStartIndex: processedData.themesStartIndex, css: processedData.safeCSS }, () => {
                     this.getThemeCSS(this.props.theme);
                 });
-            });
-    }
+            })
+            .catch(e => '');
+    };
 
-    processCSS(css) {
+    processCSS = (css) => {
         let lines = css.split('\n');
         let themesStartIndex = {};
         let themeNames = Object.keys(THEMES);
@@ -116,9 +107,9 @@ export default class ThemeCSS extends React.Component {
         });
 
         return { safeCSS, themesStartIndex };
-    }
+    };
 
-    getThemeCSS(theme) {
+    getThemeCSS = (theme) => {
         let { css, themesStartIndex } = this.state;
         let themeNames = Object.keys(THEMES);
 
@@ -131,9 +122,9 @@ export default class ThemeCSS extends React.Component {
         let chunkStr = Object.values(chunkArr).reduce((l1, l2) => l1 + '\n' + l2);
 
         this.setState({ currentThemeCSS: chunkStr });
-    }
+    };
 
-    updateCustomProperty(property, newValue) {
+    updateCustomProperty = (property, newValue) => {
         if (this.props.isPreview) {
             let previewZone = document.getElementById("previewZone");
             previewZone && previewZone.style.setProperty(property, newValue);
@@ -144,23 +135,23 @@ export default class ThemeCSS extends React.Component {
         } else {
             document.documentElement.style.setProperty(property, newValue);
         }
-    }
+    };
 
-    loadColorsCustomProperties(colors) {
+    loadColorsCustomProperties = (colors) => {
         Object.keys(colors).map((cPropKey) => {
             this.updateCustomProperty('--' + cPropKey, colors[cPropKey]);
             this.updateCustomProperty('--' + cPropKey + 'Transparent', setRgbaAlpha(colors[cPropKey], 0.15));
         });
-    }
+    };
 
-    loadImagesCustomProperties(theme) {
+    loadImagesCustomProperties = (theme) => {
         let images = getThemeImages(theme);
         Object.keys(images).map((templateKey) => {
             Object.keys(images[templateKey]).map((posKey) => {
-                this.updateCustomProperty('--templates_' + templateKey + '_' + posKey, `url(/themes/${theme}/${images[templateKey][posKey]})`);
+                this.updateCustomProperty('--templates_' + templateKey + '_' + posKey, `url(./themes/${theme}/${images[templateKey][posKey]})`);
             });
         });
-    }
+    };
 
     render() {
         return <style dangerouslySetInnerHTML={{
@@ -193,5 +184,5 @@ ThemeCSS.propTypes = {
     /**
      * Identifier of the current slide template
      */
-    currentView: PropTypes.number,
+    currentView: PropTypes.string,
 };

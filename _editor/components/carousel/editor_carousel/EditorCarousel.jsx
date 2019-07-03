@@ -3,21 +3,18 @@ import React, { Component } from 'react';
 
 import CarouselButtons from '../carousel_buttons/CarouselButtons';
 import CarouselHeader from '../carousel_header/CarouselHeader';
-import CarouselList from '../carousel_list/CarouselList';
 import FileTree from "../FileTree";
+
+import { connect } from "react-redux";
+import { updateUI } from "../../../../common/actions";
+import { UI } from "../../../../common/UI.es6";
 
 /**
  * Index wrapper container
  */
-export default class EditorCarousel extends Component {
-    /**
-     * Constructor
-     * @param props
-     */
-    constructor(props) {
-        super(props);
-    }
+class EditorCarousel extends Component
 
+{
     /**
      * Renders React Component
      * @returns {code}
@@ -29,12 +26,12 @@ export default class EditorCarousel extends Component {
                     maxWidth: this.props.carouselShow ? (this.props.carouselFull ? '100%' : '212px') : '80px',
                     overflowX: this.props.carouselFull ? 'hidden' : '',
                 }}>
-                <CarouselHeader carouselFull={this.props.carouselFull}
+                <CarouselHeader
+                    carouselFull={this.props.carouselFull}
                     carouselShow={this.props.carouselShow}
-                    courseTitle={this.props.globalConfig.title}
+                    courseTitle={this.props.title}
                     onTitleChanged={this.props.onTitleChanged}
-                    onToggleFull={this.props.onToggleFull}
-                    onToggleWidth={this.props.onToggleWidth} />
+                    onToggleWidth={this.onToggleWidth} />
                 <FileTree
                     carouselShow={this.props.carouselShow}
                     containedViews={this.props.containedViews}
@@ -57,28 +54,55 @@ export default class EditorCarousel extends Component {
                     onNavItemReordered={this.props.onNavItemReordered}
                     viewToolbars={this.props.viewToolbars}
                 />
-                <CarouselButtons boxes={this.props.boxes}
+                <CarouselButtons
                     carouselShow={this.props.carouselShow}
-                    containedViews={this.props.containedViews}
-                    indexSelected={this.props.indexSelected}
-                    styleConfig={this.props.styleConfig}
-                    navItems={this.props.navItems}
-                    navItemsIds={this.props.navItemsIds}
                     onNavItemAdded={this.props.onNavItemAdded}
-                    onNavItemReordered={this.props.onNavItemReordered}
                     onBoxAdded={this.props.onBoxAdded}
                     onNavItemExpanded={this.props.onNavItemExpanded}
                     onIndexSelected={this.props.onIndexSelected}
-                    onContainedViewDeleted={this.props.onContainedViewDeleted}
                     onNavItemDuplicated={this.props.onNavItemDuplicated}
                     onNavItemDeleted={this.props.onNavItemDeleted} />
             </div>
         );
     }
 
+    onToggleWidth = () => {
+        if(this.props.carouselShow) {
+            this.props.dispatch(updateUI({
+                carouselShow: false,
+                carouselFull: false,
+            }));
+        } else {
+            this.props.dispatch(updateUI(UI.carouselShow, true));
+        }
+    }
+
 }
 
+function mapStateToProps(state) {
+    return {
+        carouselShow: state.reactUI.carouselShow,
+        carouselFull: state.reactUI.carouselFull,
+        boxes: state.undoGroup.present.boxesById,
+        title: state.undoGroup.present.globalConfig.title || '---',
+        containedViews: state.undoGroup.present.containedViewsById,
+        containedViewSelected: state.undoGroup.present.containedViewSelected,
+        indexSelected: state.undoGroup.present.indexSelected,
+        navItemsIds: state.undoGroup.present.navItemsIds,
+        navItems: state.undoGroup.present.navItemsById,
+        navItemSelected: state.undoGroup.present.navItemSelected,
+        displayMode: state.undoGroup.present.displayMode,
+        viewToolbars: state.undoGroup.present.viewToolbarsById,
+    };
+}
+
+export default connect(mapStateToProps)(EditorCarousel);
+
 EditorCarousel.propTypes = {
+    /**
+     * Redux action dispatcher
+     */
+    dispatch: PropTypes.func,
     /**
      * Object containing all contained views (identified by its ID)
      */
@@ -90,7 +114,7 @@ EditorCarousel.propTypes = {
     /**
      * Object containing all created boxes (by id)
      */
-    boxes: PropTypes.object.isRequired,
+    boxes: PropTypes.object,
     /**
      * Objects Array that contains all created views (identified by its *id*)
      */
@@ -126,39 +150,7 @@ EditorCarousel.propTypes = {
     /**
      * Callback for renaming view
      */
-    onNavItemNameChanged: PropTypes.func.isRequired,
-    /**
-     * Function for adding a new view
-     */
-    onNavItemAdded: PropTypes.func.isRequired,
-    /**
-     * Selects view
-     */
-    onNavItemSelected: PropTypes.func.isRequired,
-    /**
-     * Selects a view/contained view in the index's context
-     */
-    onIndexSelected: PropTypes.func.isRequired,
-    /**
-     * Expands navItem (only for sections)
-     */
-    onNavItemExpanded: PropTypes.func.isRequired,
-    /**
-     * Removes a view
-     */
-    onNavItemDeleted: PropTypes.func.isRequired,
-    /**
-     * Callback for reordering navItems
-     */
-    onNavItemReordered: PropTypes.func.isRequired,
-    /**
-     * Modifies the course's title
-     */
-    onTitleChanged: PropTypes.func.isRequired,
-    /**
-     * Course title
-     */
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     /**
      * Indicates whether the index has been expanded or not
      */
@@ -168,27 +160,43 @@ EditorCarousel.propTypes = {
      */
     carouselFull: PropTypes.bool,
     /**
-     * Expands the index to make it take 100% of the width
-     */
-    onToggleFull: PropTypes.func.isRequired,
-    /**
-     * Modifies the index's width
-     */
-    onToggleWidth: PropTypes.func.isRequired,
-    /**
-     *  Object that cointains the course's global configuration, stored in the Redux state
-     */
-    globalConfig: PropTypes.object,
-    /**
      * Object containing all the pages' toolbars
      */
     viewToolbars: PropTypes.object,
+    /**
+     * Select new index
+     */
+    onIndexSelected: PropTypes.func.isRequired,
     /**
      * Duplicate nav item
      */
     onNavItemDuplicated: PropTypes.func.isRequired,
     /**
-     * Object containing style configuration
+     * Change nav item name
      */
-    styleConfig: PropTypes.object,
+    onNavItemNameChanged: PropTypes.func.isRequired,
+    /**
+     * Add nav item
+     */
+    onNavItemAdded: PropTypes.func.isRequired,
+    /**
+     * Select nav item
+     */
+    onNavItemSelected: PropTypes.func.isRequired,
+    /**
+     * Expand nav item
+     */
+    onNavItemExpanded: PropTypes.func.isRequired,
+    /**
+     * Delete nav item
+     */
+    onNavItemDeleted: PropTypes.func.isRequired,
+    /**
+     * Reorder nav item
+     */
+    onNavItemReordered: PropTypes.func.isRequired,
+    /**
+     * Change title
+     */
+    onTitleChanged: PropTypes.func.isRequired,
 };

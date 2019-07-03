@@ -8,31 +8,20 @@ import { ADD_BOX } from '../../../common/actions';
 import { randomPositionGenerator, retrieveImageFromClipboardAsBase64, getCKEDITORAdaptedContent, isURL, copyText } from './clipboard.utils';
 import i18n from 'i18next';
 import { instanceExists, scrollElement, findBox, createBox } from '../../../common/common_tools';
+import { connect } from 'react-redux';
+import { uploadVishResourceAsync, uploadEdiphyResourceAsync, deleteBox, addBox, pasteBox } from '../../../common/actions';
+
 /**
  * Component for managing the clipboard
  */
-export default class Clipboard extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            alert: null,
-        };
-        this.copyButtonListener = this.copyButtonListener.bind(this);
-        this.copyListener = this.copyListener.bind(this);
-        this.pasteListener = this.pasteListener.bind(this);
-        this.cutListener = this.cutListener.bind(this);
-        this.pasteBox = this.pasteBox.bind(this);
-        this.copyData = this.copyData.bind(this);
-        this.duplicateBox = this.duplicateBox.bind(this);
-        this.duplicateListener = this.duplicateListener.bind(this);
-        this.currentPage = this.currentPage.bind(this);
-        this.getIndex = this.getIndex.bind(this);
-    }
+class Clipboard extends Component {
+
+    state = { alert: null };
 
     /**
      * Extracts necessary information for clipboard/duplicating
      */
-    copyData() {
+    copyData = () => {
         let box = this.props.boxes[this.props.boxSelected];
         let toolbar = this.props.toolbars[this.props.boxSelected];
         let itemSelected = this.currentPage();
@@ -64,12 +53,13 @@ export default class Clipboard extends Component {
             }
         }
         return { box, toolbar, marks, childBoxes, childToolbars, score };
-    }
+    };
+
     /**
      * Copy action listener
      * @param event
      */
-    copyListener(event) {
+    copyListener = (event) => {
         let activeElement = document.activeElement;
         if (event.clipboardData) {
             if (this.props.boxSelected !== -1 && !isSortableBox(this.props.boxSelected)) {
@@ -84,14 +74,14 @@ export default class Clipboard extends Component {
         }
         document.activeElement.blur();
         return false;
-    }
+    };
 
     /**
      * Copy Button
      * @param event
      * @returns {boolean}
      */
-    copyButtonListener(event) {
+    copyButtonListener = (event) => {
         let activeElement = document.activeElement;
         if (this.props.boxSelected !== -1 && !isSortableBox(this.props.boxSelected)) {
             if (!this.containsCKEDitorText(activeElement) || (this.props.boxes[this.props.boxSelected] && !this.props.boxes[this.props.boxSelected].showTextEditor)) {
@@ -106,31 +96,33 @@ export default class Clipboard extends Component {
 
         }
         return false;
-    }
+    };
     /**
      * Cut action listener
      */
-    cutListener(event) {
+    cutListener = (event) => {
         let fromPlugin = this.copyListener(event);
         if (fromPlugin) {
             let box = this.props.boxes[this.props.boxSelected];
             this.props.onBoxDeleted(box.id, box.parent, box.container, this.currentPage());
+            // this.props.dispatch(deleteBox(box.id, box.parent, box.container, this.currentPage()));
         }
         document.activeElement.blur();
-    }
+    };
+
     /**
      * Calculates current page (nav or cv)
      */
-    currentPage() {
+    currentPage = () => {
         return isContainedView(this.props.containedViewSelected) ?
             this.props.containedViews[this.props.containedViewSelected] :
             (this.props.navItemSelected !== 0 ? this.props.navItems[this.props.navItemSelected] : null);
-    }
+    };
 
     /**
      * Duplicates box
      */
-    duplicateBox() {
+    duplicateBox = () => {
         let data = this.copyData();
         let containerId = ID_PREFIX_SORTABLE_CONTAINER + Date.now();
         let id = ID_PREFIX_BOX + Date.now();
@@ -150,12 +142,12 @@ export default class Clipboard extends Component {
         let ids = { id, parent, container, page: page ? page.id : 0 };
         this.pasteBox(data, ids, isTargetSlide, newInd);
         document.activeElement.blur();
-    }
+    };
 
     /**
      * Duplicate action listener
      */
-    duplicateListener(event) {
+    duplicateListener = (event) => {
         let key = event.keyCode ? event.keyCode : event.which;
         if ((key === 69) && event.ctrlKey && event.altKey && isBox(this.props.boxSelected)) {
             event.preventDefault();
@@ -165,12 +157,12 @@ export default class Clipboard extends Component {
             this.pasteListener(event, true);
         }
         return true;
-    }
+    };
 
     /**
      * Pastes box
      */
-    pasteBox(data, ids, isTargetSlide, index) {
+    pasteBox = (data, ids, isTargetSlide, index) => {
         let pluginName = data.toolbar.pluginId;
         let plug = Ediphy.Plugins.get(pluginName);
         if (!plug) {
@@ -216,10 +208,8 @@ export default class Clipboard extends Component {
                 newMarks[newId] = newMark;
             }
         }
-
-        this.props.onBoxPasted({ ...ids, config }, transformedBox.newBox, transformedToolbar, transformedChildren, index, newMarks, data.score);
-
-    }
+        this.props.dispatch(pasteBox({ ...ids, config }, transformedBox.newBox, transformedToolbar, transformedChildren, index, newMarks, data.score));
+    };
 
     /**
      * Calculates if the current focused element in the DOM is a text area. If it is we do not want to paste the box.
@@ -232,7 +222,7 @@ export default class Clipboard extends Component {
     /**
      * Paste action listener
      */
-    pasteListener(event, overrideShiftKey) {
+    pasteListener = (event, overrideShiftKey) => {
         if (event.shiftKey && !overrideShiftKey) {
             return;
         }
@@ -307,12 +297,14 @@ export default class Clipboard extends Component {
                     };
                     // If it is an image
                     let noImage = true;
+                    let onBoxAdded = (...params)=>this.props.dispatch(addBox(...params));
                     try {
-                        let uploadFunction = this.props.uploadFunction;
+                        let uploadFunctionAction = (process.env.NODE_ENV === 'production' && process.env.DOC !== 'doc') ? uploadVishResourceAsync : uploadEdiphyResourceAsync;
+                        let uploadFunction = (...params) => {return this.props.dispatch(uploadFunctionAction(...params));};
                         noImage = retrieveImageFromClipboardAsBase64(event, uploadFunction, (url) => {
                             if (url) {
                                 initialParams.url = url; // URLObj.createObjectURL(imageBlob);
-                                createBox(initialParams, "HotspotImages", isTargetSlide, this.props.onBoxAdded, this.props.boxes);
+                                createBox(initialParams, "HotspotImages", isTargetSlide, onBoxAdded, this.props.boxes);
                                 return;
                             }
                         }
@@ -332,7 +324,7 @@ export default class Clipboard extends Component {
                             if (tag === 'IFRAME') {
                                 if (type === 'scormpackage') {
                                     initialParams.url = src;
-                                    createBox(initialParams, "ScormPackage", isTargetSlide, this.props.onBoxAdded, this.props.boxes);
+                                    createBox(initialParams, "ScormPackage", isTargetSlide, onBoxAdded, this.props.boxes);
                                     return;
                                 }
 
@@ -344,12 +336,12 @@ export default class Clipboard extends Component {
                                 }
 
                                 initialParams.url = src;
-                                createBox(initialParams, "Webpage", isTargetSlide, this.props.onBoxAdded, this.props.boxes);
+                                createBox(initialParams, "Webpage", isTargetSlide, onBoxAdded, this.props.boxes);
                                 return;
 
                             } else if (tag === "EMBED") {
                                 initialParams.url = src;
-                                createBox(initialParams, "FlashObject", isTargetSlide, this.props.onBoxAdded, this.props.boxes);
+                                createBox(initialParams, "FlashObject", isTargetSlide, onBoxAdded, this.props.boxes);
                                 return;
                             } else if (tag === "AUDIO") {
                                 if (!src) {
@@ -386,12 +378,12 @@ export default class Clipboard extends Component {
                 }
             }
         }
-    }
+    };
 
     /**
      * Modifies pasted box so it adapts to its new parent
      */
-    transformBox(box, ids, isTargetSlide, isOriginSlide) {
+    transformBox = (box, ids, isTargetSlide, isOriginSlide) => {
         let samePage = isTargetSlide && box.parent === ids.parent;
         let newIds = {};
         let newContainerBoxes = {};
@@ -424,12 +416,12 @@ export default class Clipboard extends Component {
         });
         return { newBox, newIds };
 
-    }
+    };
 
     /**
      * Modifies pasted toolbar so it adapts to its new parent
      */
-    transformToolbar(toolbar, ids, isTargetSlide, isOriginSlide) {
+    transformToolbar = (toolbar, ids, isTargetSlide, isOriginSlide) => {
         let newToolbar = Object.assign({}, toolbar, { id: ids.id });
         if (isTargetSlide !== isOriginSlide) {
             let config = Ediphy.Plugins.get(newToolbar.pluginId).getConfig();
@@ -453,9 +445,9 @@ export default class Clipboard extends Component {
         }
         return newToolbar;
 
-    }
+    };
 
-    getIndex(parent, container) {
+    getIndex = (parent, container) => {
         let newInd;
         if(isSortableContainer(container)) {
             let children = this.props.boxes[parent].sortableContainers[container].children;
@@ -463,7 +455,7 @@ export default class Clipboard extends Component {
             newInd = newInd === 0 ? 1 : ((newInd === -1 || newInd >= children.length) ? (children.length) : newInd);
         }
         return newInd;
-    }
+    };
 
     /**
      * After component mounts
@@ -506,15 +498,28 @@ export default class Clipboard extends Component {
     }
 
 }
+
+export default connect(mapStateToProps)(Clipboard);
+
+function mapStateToProps(state) {
+    return {
+        navItemSelected: state.undoGroup.present.navItemSelected,
+        containedViewSelected: state.undoGroup.present.containedViewSelected,
+        boxSelected: state.undoGroup.present.boxSelected,
+        boxes: state.undoGroup.present.boxesById,
+        navItems: state.undoGroup.present.navItemsById,
+        marks: state.undoGroup.present.marksById,
+        exercises: state.undoGroup.present.exercises,
+        containedViews: state.undoGroup.present.containedViewsById,
+        toolbars: state.undoGroup.present.pluginToolbarsById,
+    };
+}
+
 Clipboard.propTypes = {
     /**
-     * Paste box function
+     * Redux actions dispatcher
      */
-    onBoxPasted: PropTypes.func.isRequired,
-    /**
-     * Delete box function
-     */
-    onBoxDeleted: PropTypes.func.isRequired,
+    dispatch: PropTypes.func,
     /**
       * Selected box
       */
@@ -528,10 +533,6 @@ Clipboard.propTypes = {
       */
     boxes: PropTypes.object,
     /**
-   * Current selected view (by ID)
-   */
-    navItemSelected: PropTypes.any,
-    /**
    * Contained view selected
    */
     containedViewSelected: PropTypes.any,
@@ -539,6 +540,10 @@ Clipboard.propTypes = {
    * Object that contains all the views
    */
     navItems: PropTypes.object,
+    /**
+     * Selected nav item
+     */
+    navItemSelected: PropTypes.any,
     /**
    * Object containing all contained views (identified by its ID)
    */
@@ -552,16 +557,15 @@ Clipboard.propTypes = {
      */
     marks: PropTypes.object,
     /**
-     * Function for adding a new box
-     */
-    onBoxAdded: PropTypes.func.isRequired,
-    /**
        * Object containing all exercises
        */
     exercises: PropTypes.object,
     /**
-     *  Function for uploading a file to the server
+     * Added box handler
      */
-    uploadFunction: PropTypes.func.isRequired,
+    onBoxAdded: PropTypes.func,
+    /**
+     * Deleted box handler
+     */
+    onBoxDeleted: PropTypes.func,
 };
-

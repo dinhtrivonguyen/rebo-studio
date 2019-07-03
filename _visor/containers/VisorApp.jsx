@@ -59,11 +59,8 @@ export default class Visor extends Component {
             scoreInfo: { userName: "Anonymous", totalScore: 0, totalWeight: 0, completionProgress: 0 },
             mouseMoving: false,
             mouseOnPlayer: false,
+            backwards: false,
         };
-        this.onMarkClicked = this.onMarkClicked.bind(this);
-        this._onMouseMove = this._onMouseMove.bind(this);
-        this.setHoverClass = this.setHoverClass.bind(this);
-        this.deleteHoverClass = this.deleteHoverClass.bind(this);
 
         if (!Ediphy.State.export) {
             window.export = (format = 'HTML') => {
@@ -84,15 +81,15 @@ export default class Visor extends Component {
         }
     }
 
-    setHoverClass() {
+    setHoverClass = () => {
         this.setState({ mouseOnPlayer: true });
-    }
+    };
 
-    deleteHoverClass() {
+    deleteHoverClass = () => {
         this.setState({ mouseOnPlayer: false });
-    }
+    };
 
-    _onMouseMove(e) {
+    _onMouseMove = (e) => {
         if(!this.state.mouseMoving) {
             this.setState({ mouseMoving: true });
         }
@@ -104,7 +101,7 @@ export default class Visor extends Component {
                 this.setState({ mouseMoving: false });
             }, 2500);
         }
-    }
+    };
 
     componentWillUpdate(nextProps, nextState) {
         // reset marks when navigating between main sections
@@ -191,7 +188,7 @@ export default class Visor extends Component {
                 let focusElement = document.activeElement.tagName.toLowerCase();
                 if (focusElement !== 'input' && focusElement !== 'textarea') {
                     if (key === 37 || key === 33) {
-                        this.changeCurrentView(navItemsIds[Math.max(index - 1, 0)]);
+                        this.changeCurrentView(navItemsIds[Math.max(index - 1, 0)], true);
                     } else if(key === 39 || key === 34) {
                         this.changeCurrentView(navItemsIds[Math.min(index + 1, maxIndex - 1)]);
                     }
@@ -236,7 +233,8 @@ export default class Visor extends Component {
             currentView: currentView,
             fromScorm: this.state.fromScorm,
             navItems: navItemsById,
-            removeLastView: ()=>{this.removeLastView(); },
+            navItemsIds,
+            removeLastView: this.removeLastView,
             richElementsState: this.state.richElementState,
             title,
             marks: marksById,
@@ -254,15 +252,14 @@ export default class Visor extends Component {
 
         let navItemComponents = Object.keys(navItemsById).filter(nav=>isPage(nav)).map((nav, i)=>{
             return (
-                <VisorCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} showCanvas={nav.indexOf("cv-") === -1} />
+                <VisorCanvas key={i} {...canvasProps} selectedView={currentView} backwards = {this.state.backwards} currentView={nav} show={nav === currentView} z={ i + 10} showCanvas={nav.indexOf("cv-") === -1} />
             );
         });
         let cvComponents = Object.keys(containedViewsById).map((nav, i)=>{
-            return <VisorContainedCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} showCanvas={nav.indexOf("cv-") !== -1} />;
+            return <VisorContainedCanvas key={i} {...canvasProps} currentView={nav} show={nav === currentView} z={ i + navItemComponents.length } showCanvas={nav.indexOf("cv-") !== -1} />;
         });
 
         let content = [...navItemComponents, cvComponents];
-        console.log(content);
         let empty = <div className="emptyPresentation">{i18n.t("EmptyPresentation")}</div>;
         let visorNavButtonClass = 'hoverPlayerSelector';
         visorNavButtonClass = this.state.mouseMoving ? visorNavButtonClass + ' appearButton' : visorNavButtonClass + ' fadeButton';
@@ -313,7 +310,7 @@ export default class Visor extends Component {
                                         setHover={this.setHoverClass}
                                         deleteHover = {this.deleteHoverClass}
                                         show={visorNav.player}
-                                        changeCurrentView={(page)=> {this.changeCurrentView(page);}}
+                                        changeCurrentView={(page, backwards)=> {this.changeCurrentView(page, backwards);}}
                                         currentViews={this.state.currentView}
                                         navItemsById={navItemsById}
                                         navItemsIds={navItemsIds.filter(nav=> {return !navItemsById[nav].hidden;})}/>) : null}
@@ -336,7 +333,7 @@ export default class Visor extends Component {
                                     setHover={this.setHoverClass}
                                     deleteHover = {this.deleteHoverClass}
                                     show={visorNav.player}
-                                    changeCurrentView={(page)=> {this.changeCurrentView(page);}}
+                                    changeCurrentView={(page, backwards)=> {this.changeCurrentView(page, backwards);}}
                                     currentViews={this.state.currentView}
                                     navItemsById={navItemsById}
                                     navItemsIds={navItemsIds.filter(nav=> {return !navItemsById[nav].hidden;})}/>
@@ -378,15 +375,14 @@ export default class Visor extends Component {
      * Navigation main method
      * @param {string} element - current Element to go
      */
-    changeCurrentView(element) {
-
+    changeCurrentView(element, backwards = false) {
         if (isContainedView(element)) {
-            this.setState({ currentView: [this.getCurrentView(this.state.navItemSelected, this.state.containedViewSelected), element] });
+            this.setState({ currentView: [this.getCurrentView(this.state.navItemSelected, this.state.containedViewSelected), element], backwards: backwards });
         } else {
-            this.setState({ currentView: [element] });
+            this.setState({ currentView: [element], backwards: backwards });
             if(this.state.currentView.length > 1) {
                 this.setState({ triggeredMarks: this.unTriggerLastMark(this.state.triggeredMarks),
-                    richElementState: this.getActualBoxesStates(this.state.backupElementStates, this.state.richElementState) });
+                    richElementState: this.getActualBoxesStates(this.state.backupElementStates, this.state.richElementState), backwards: backwards });
             }
         }
 
@@ -423,7 +419,7 @@ export default class Visor extends Component {
         return exists;
     }
 
-    onMarkClicked(id, value, stateElement) {
+    onMarkClicked = (id, value, stateElement) => {
         let richElementsState = this.state.richElementState;
         let marks = this.getAllMarks();
         let triggered_event = { id, value, stateElement };
@@ -464,7 +460,7 @@ export default class Visor extends Component {
                 backupElementStates: Object.assign({}, backupElementStates, new_mark),
             });
         }
-    }
+    };
 
     /**
      * Returns if any is there any triggerable mark

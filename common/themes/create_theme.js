@@ -1,11 +1,9 @@
 /**
- * CLI para crear un plugin automáticamente
- * yarn run create-plugin help
+ * CLI para crear un tema automáticamente
+ * yarn run create-theme help
  */
 
-import path from 'path';
 import fs from 'fs';
-const LANGS = ["en", "es"];
 const BASE = "common/themes/";
 const DIST = "dist/themes/";
 let options = {
@@ -16,7 +14,6 @@ let options = {
     isRich: false,
 };
 
-const cats = ["text", "image", "media", "objects", "evaluation"];
 function p(text) {
     // eslint-disable-next-line no-console
     console.log(text);
@@ -24,8 +21,8 @@ function p(text) {
 
 function help() {
     p(`  
- Uso: yarn run create-plugin \"Nombre del plugin\" <opciones>
- o bien : npm run create-plugin -- \"Nombre del plugin\"  <opciones> 
+ Uso: yarn run create-theme \"Nombre del tema\" <opciones>
+ o bien : npm run create-theme -- \"Nombre del tema\"  <opciones> 
                
 `);
 }

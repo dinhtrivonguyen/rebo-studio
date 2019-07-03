@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import { Modal, Grid, Row, Col, FormGroup, ControlLabel, FormControl, InputGroup, Radio, OverlayTrigger, Popover, Button } from 'react-bootstrap';
 import i18n from 'i18next';
 
+import { updateUI, changeStyleConfig } from "../../../../common/actions";
+import { connect } from "react-redux";
+
 import ThemePicker from '../../common/theme-picker/ThemePicker';
 import ColorPicker from '../../common/color-picker/ColorPicker';
 import FontPicker from '../../common/font-picker/FontPicker';
@@ -24,28 +27,19 @@ import TransitionPicker from "../../common/transition-picker/TransitionPicker";
 /**
  * Global course configuration modal
  */
-export default class StyleConfig extends Component {
-    /**
-     * Constructor
-     * @param props
-     */
-    constructor(props) {
-        super(props);
-        /* State from props is an anti-pattern*/
-        this.state = {
-            theme: this.props.styleConfig.theme || 'default',
-            font: this.props.styleConfig.font || getThemeFont(this.props.styleConfig.theme) || 'Ubuntu',
-            color: getColor(this.props.styleConfig.theme),
-            transition: 0,
-        };
-    }
+class StyleConfig extends Component {
+    state = {
+        theme: this.props.styleConfig.theme || 'default',
+        font: this.props.styleConfig.font || getThemeFont(this.props.styleConfig.theme) || 'Ubuntu',
+        color: getColor(this.props.styleConfig.theme),
+        transition: 0,
+    };
 
     /**
      * Renders React component
      * @returns {code}
      */
     render() {
-        const { title, author, canvasRatio, age, hideGlobalScore, typicalLearningTime, minTimeProgress, difficulty, rights, visorNav, description, language, thumbnail, keywords, version, status, context, allowDownload, allowClone, allowComments } = this.state;
         return (
             <div>
                 <Modal className="pageModal"
@@ -90,16 +84,7 @@ export default class StyleConfig extends Component {
                                             <ThemePicker
                                                 fromStyleConfig
                                                 currentTheme={this.state.theme}
-                                                onChange={(id)=>{
-                                                    let newTheme = getThemes()[id];
-                                                    let isFontCustom = this.state.font !== getThemeFont(this.state.theme);
-                                                    let isColorCustom = this.state.color !== getThemeColors(this.state.theme).themeColor1;
-                                                    this.setState({
-                                                        theme: newTheme,
-                                                        font: isFontCustom ? this.state.font : getThemeFont(newTheme),
-                                                        color: isColorCustom ? this.state.color : getThemeColors(newTheme).themeColor1,
-                                                        modifiedState: true });
-                                                }}/>
+                                                onChange={this.handleThemeChange}/>
                                         </div>
                                     </FormGroup>
                                     <FormGroup onClick={e => e.stopPropagation()}>
@@ -108,9 +93,7 @@ export default class StyleConfig extends Component {
                                             <ColorPicker
                                                 color={this.state.color}
                                                 value= {this.state.color}
-                                                onChange={(e)=>{
-                                                    this.setState({ color: e.color, modifiedState: true });
-                                                }}/>
+                                                onChange={this.handleColorChange}/>
                                         </div>
                                     </FormGroup>
                                     <FormGroup>
@@ -118,9 +101,7 @@ export default class StyleConfig extends Component {
                                         <div className={"apply-font"}>
                                             <FontPicker apiKey={'AIzaSyCnIyhIyDVg6emwq8XigrPKDPgueOrZ4CE'}
                                                 activeFont={this.state.font}
-                                                onChange={(e)=>{
-                                                    this.setState({ font: e.family, modifiedState: true });
-                                                }}
+                                                onChange={this.handleFontChange}
                                                 options={{ themeFont: getThemeFont(this.state.theme) }}
                                             />
                                         </div>
@@ -138,28 +119,27 @@ export default class StyleConfig extends Component {
                                         <ThemePreview
                                             styleConfig={ this.state}
                                             theme={ this.state.modifiedState ? this.state.theme : this.props.styleConfig.theme }
-                                            // font={ this.state.modifiedState ? this.state.font : this.props.styleConfig.font }
-                                            // color={ this.state.modifiedState ? this.state.color : this.props.styleConfig.color }
                                         />
 
                                     </div>
                                     <h4>{i18n.t("Style.transitions")}</h4>
                                     <FormGroup>
                                         <TransitionPicker
-                                            onClick={(index) => this.setState({ transition: index })}/>
+                                            onClick={this.handleTransitionChange}/>
                                     </FormGroup>
                                 </Col>
                             </Row>
                         </Grid>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle="default" id="cancel_insert_plugin_config_modal" onClick={e => {
-                            this.cancel(); e.preventDefault();
-                        }}>{i18n.t("global_config.Discard")}
+                        <Button bsStyle="default" id="cancel_insert_plugin_config_modal"
+                            onClick={this.cancel}>
+                            {i18n.t("global_config.Discard")}
                         </Button>
-                        <Button bsStyle="primary" id="insert_plugin_config_modal" onClick={e => {
-                            this.saveState(); e.preventDefault();
-                        }}>{i18n.t("global_config.Accept")}</Button>{'   '}
+                        <Button bsStyle="primary" id="insert_plugin_config_modal"
+                            onClick={this.saveState}>
+                            {i18n.t("global_config.Accept")}
+                        </Button>{'   '}
                     </Modal.Footer>
                 </Modal>
             </div>
@@ -169,25 +149,62 @@ export default class StyleConfig extends Component {
     /**
      * Save configuration changes
      */
-    saveState() {
+    saveState = (e) => {
         this.setState({ modifiedState: false });
-        this.props.changeStyleConfig("STATE", this.state);
-        this.props.close();
+        this.props.dispatch(changeStyleConfig("STATE", this.state));
+        this.close();
+        e.preventDefault();
     }
 
     /**
      * Discard configuration changes
      */
-    cancel() {
+    cancel = (e) => {
         this.setState({
             ...this.props.styleConfig,
 
         });
 
         //  Comment the following line if you don't want to exit when changes are discarded
-        this.props.close();
+        this.close();
 
-    }
+        e.preventDefault();
+    };
+
+    close = () => {
+        this.props.dispatch(updateUI('showStyleConfig', false));
+    };
+
+    handleThemeChange = (id) => {
+        let newTheme = getThemes()[id];
+        let isFontCustom = this.state.font !== getThemeFont(this.state.theme);
+        let isColorCustom = this.state.color !== getThemeColors(this.state.theme).themeColor1;
+        this.setState({
+            theme: newTheme,
+            font: isFontCustom ? this.state.font : getThemeFont(newTheme),
+            color: isColorCustom ? this.state.color : getThemeColors(newTheme).themeColor1,
+            modifiedState: true });
+    };
+
+    handleColorChange = (e)=>{
+        this.setState({ font: e.family, modifiedState: true });
+    };
+
+    handleFontChange = (e)=>{
+        this.setState({ font: e.family, modifiedState: true });
+    };
+
+    handleTransitionChange = (index) => this.setState({ transition: index });
+
+}
+
+export default connect(mapStateToProps)(StyleConfig);
+
+function mapStateToProps(state) {
+    return {
+        show: state.reactUI.showStyleConfig,
+        styleConfig: state.undoGroup.present.styleConfig,
+    };
 }
 
 StyleConfig.propTypes = {
@@ -200,11 +217,7 @@ StyleConfig.propTypes = {
      */
     styleConfig: PropTypes.object.isRequired,
     /**
-     * Saves new configuration
+     * Redux actions trigger
      */
-    changeStyleConfig: PropTypes.func.isRequired,
-    /**
-     * Closes course configuration modal
-     */
-    close: PropTypes.func.isRequired,
+    dispatch: PropTypes.func,
 };

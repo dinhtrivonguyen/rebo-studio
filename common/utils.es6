@@ -8,6 +8,12 @@ export default {
     },
 };
 
+export function get(obj, key) {
+    return key.split(".").reduce(function(o, x) {
+        return (typeof o === "undefined" || o === null) ? o : o[x];
+    }, obj);
+}
+
 export function isView(id) {
     return isPage(id) || isSection(id);
 }
@@ -227,15 +233,16 @@ export function nextAvailName(key, views, name = 'name') {
 export function nextToolbarAvailName(key, views) {
     let names = [];
     for (let view in views) {
-        if (views[view] &&
-            views[view].controls &&
-            views[view].controls.main &&
-            views[view].controls.main.accordions &&
-            views[view].controls.main.accordions.basic &&
-            views[view].controls.main.accordions.basic.buttons &&
-            views[view].controls.main.accordions.basic.buttons.navitem_name &&
-            views[view].controls.main.accordions.basic.buttons.navitem_name.value &&
-            views[view].controls.main.accordions.basic.buttons.navitem_name.value.indexOf(key) !== -1) {
+        if (views
+            && views[view]
+            && views[view].controls
+            && views[view].controls.main
+            && views[view].controls.main.accordions
+            && views[view].controls.main.accordions.basic
+            && views[view].controls.main.accordions.basic.buttons
+            && views[view].controls.main.accordions.basic.buttons.navitem_name
+            && views[view].controls.main.accordions.basic.buttons.navitem_name.value
+            && views[view].controls.main.accordions.basic.buttons.navitem_name.value.indexOf(key) !== -1) {
             let replaced = views[view].controls.main.accordions.basic.buttons.navitem_name.value.replace(key /* + " "*/, "");
             let num = parseInt(replaced, 10);
             if (!isNaN(num)) {
@@ -442,4 +449,33 @@ export function getDescendantBoxesFromContainer(box, container, boxes, contained
         }
     }
     return selected;
+}
+
+export function getDescendantViews(view, views) {
+    let selected = [];
+
+    for (let i = 0; i < view.children.length; i++) {
+        let vw = view.children[i];
+        selected.push(vw);
+        selected = selected.concat(getDescendantViews(views[vw]), views);
+    }
+
+    return selected;
+}
+
+export function getTitles(itemSelected, viewToolbars, navItems, fromCV) {
+    let titles = [];
+    if (itemSelected && itemSelected.id !== 0) {
+        let initialTitle = viewToolbars[itemSelected.id].viewName;
+        titles.push(initialTitle);
+        if (!fromCV) {
+            let parent = itemSelected.parent;
+            while (parent !== 0) {
+                titles.push(viewToolbars[parent].viewName);
+                parent = navItems[parent].parent;
+            }
+        }
+        titles.reverse();
+    }
+    return titles;
 }

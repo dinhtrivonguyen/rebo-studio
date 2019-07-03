@@ -14,23 +14,17 @@ import { isSection, isContainedView, nextAvailName } from '../../../../common/ut
 import './_richMarksModal.scss';
 import './../../../../node_modules/rc-color-picker/assets/index.css';
 import Ediphy from '../../../../core/editor/main';
+import { connect } from "react-redux";
 
 import TemplatesModalRich from '../templates_modal/TemplatesModalRich';
 import { createBox } from "../../../../common/common_tools";
 /**
  * Modal component to edit marks' configuration
  */
-export default class RichMarksModal extends Component {
-    /**
-     * Constructor
-     * @param props
-     */
+class RichMarksModal extends Component {
+
     constructor(props) {
         super(props);
-        /**
-         * Component's initial state
-         * @type {{connectMode: string, displayMode: string, newSelected: string, existingSelected: string, newType: string, viewNames: *, showAlert: boolean}}
-         */
         this.state = {
             connectMode: "new",
             displayMode: "navigate",
@@ -42,9 +36,6 @@ export default class RichMarksModal extends Component {
             showTemplates: false,
             boxes: [],
         };
-        this.toggleModal = this.toggleModal.bind(this);
-        this.toggleTemplatesModal = this.toggleTemplatesModal.bind(this);
-        this.templateClick = this.templateClick.bind(this);
     }
 
     /**
@@ -55,7 +46,6 @@ export default class RichMarksModal extends Component {
     componentWillReceiveProps(nextProps) {
         let current = nextProps.currentRichMark;
         let allViews = this.returnAllViews(nextProps);
-        let currentViewType = this.props.containedViewSelected === 0 ? this.props.navItems[this.props.navItemSelected].type : this.props.containedViews[this.props.containedViewSelected].type;
         if (!this.props.visible) {
             if (current) {
                 this.setState({
@@ -90,7 +80,12 @@ export default class RichMarksModal extends Component {
      */
     render() {
         let richMarkValue = null;
-        let marksType = this.props.pluginToolbar && this.props.pluginToolbar.pluginId && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId) && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig() && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig().marksType ? Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig().marksType : {};
+        let marksType = this.props.pluginToolbar
+                        && this.props.pluginToolbar.pluginId
+                        && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId)
+                        && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig()
+                        && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig().marksType
+            ? Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getConfig().marksType : {};
         function getRichMarkInput(value) {
             richMarkValue = value;
         }
@@ -101,7 +96,6 @@ export default class RichMarksModal extends Component {
         if (this.props.viewToolbars[this.state.newSelected] !== undefined) {
             newSelected = this.props.viewToolbars[this.state.newSelected].viewName;
         }
-        let currentNavItemType = this.props.navItems[this.props.navItemSelected].type;
         let plugin = (this.props.pluginToolbar && this.props.pluginToolbar.pluginId && Ediphy.Plugins.get(this.props.pluginToolbar.pluginId)) ? Ediphy.Plugins.get(this.props.pluginToolbar.pluginId) : undefined;
         let defaultMarkValue = plugin ? Ediphy.Plugins.get(this.props.pluginToolbar.pluginId).getDefaultMarkValue(this.props.pluginToolbar.state, this.props.boxSelected) : '';
         let pluginType = (this.props.pluginToolbar && this.props.pluginToolbar.config) ? this.props.pluginToolbar.config.displayName : 'Plugin';
@@ -232,25 +226,6 @@ export default class RichMarksModal extends Component {
                             </FormGroup>
                         </Col>
                     </Row>
-                    {/* <FormGroup>
-                            <ControlLabel>Display mode</ControlLabel>
-                            <Radio name="display_mode"
-                                   checked={this.state.displayMode === "navigate"}
-                                   onChange={e => {
-                                        this.setState({displayMode: "navigate"});
-                                   }}>Navigate to content</Radio>
-                            <Radio name="display_mode"
-                                   checked={this.state.displayMode === "popup"}
-                                   onChange={e => {
-                                        this.setState({displayMode: "popup"});
-                                   }}>Show as popup</Radio>
-                            <Radio name="display_mode"
-                                   checked={this.state.displayMode === "new_tab"}
-                                   disabled={this.state.connectMode !== "external"}
-                                   onChange={e => {
-                                        this.setState({displayMode: "new_tab"});
-                                   }}>Open in new tab</Radio>
-                        </FormGroup>*/}
                     <Row>
                         <FormGroup>
                             {/* Input need to have certain label like richValue*/}
@@ -396,10 +371,6 @@ export default class RichMarksModal extends Component {
                         } else{
                             this.props.onRichMarkUpdated(markState.mark, markState.view, markState.viewToolbar);
                         }
-                        /* this.props.onRichMarkUpdated({ id: (current ? current.id : newMark), title, connectMode, connection, displayMode, value, color }, this.state.newSelected === "");
-                        if(connectMode === 'new' && !this.props.toolbars[connection.id || connection] && this.state.newType === PAGE_TYPES.DOCUMENT) {
-                            this.props.onBoxAdded({ parent: newId, container: 0, id: ID_PREFIX_SORTABLE_BOX + Date.now(), page: newId }, false, false);
-                        }*/
                         this.generateTemplateBoxes(this.state.boxes, newId);
                         this.restoreDefaultTemplate();
                         this.props.onRichMarksModalToggled();
@@ -434,7 +405,7 @@ export default class RichMarksModal extends Component {
      * @param props Component's props
      * @returns {Array} Array of views
      */
-    returnAllViews(props) {
+    returnAllViews = (props) => {
         let viewNames = [];
         props.navItemsIds.map(id => {
             if (id === 0) {
@@ -464,43 +435,46 @@ export default class RichMarksModal extends Component {
             viewNames.push({ label: props.containedViews[cv].name, id: props.containedViews[cv].id });
         });
         return viewNames;
-    }
+    };
 
     /**
      * Method used to remap navItems and containedViews together
      * @param objects
      * @returns {*}
      */
-    remapInObject(...objects) {
+    remapInObject = (...objects) => {
         return Object.assign({}, ...objects);
-    }
-    toggleModal(e) {
+    };
+
+    toggleModal = (e) => {
         let key = e.keyCode ? e.keyCode : e.which;
         if (key === 27 && this.props.visible) {
             this.props.onRichMarksModalToggled();
         }
-    }
+    };
+
     /**
      * Shows/Hides the Import file modal
      */
-    toggleTemplatesModal() {
+    toggleTemplatesModal = () => {
         this.setState((prevState, props) => ({
             showTemplates: !prevState.showTemplates,
         }));
-    }
-    templateClick(boxes) {
+    };
+
+    templateClick = (boxes) => {
         this.setState({
             boxes: boxes,
         });
-    }
+    };
 
-    restoreDefaultTemplate() {
+    restoreDefaultTemplate = () => {
         this.setState({
             boxes: [],
         });
-    }
+    };
 
-    generateTemplateBoxes(boxes, newId) {
+    generateTemplateBoxes = (boxes, newId) => {
         if(boxes.length > 0) {
             boxes.map((item, index) => {
                 let position = {
@@ -528,7 +502,7 @@ export default class RichMarksModal extends Component {
                 createBox(initialParams, item.toolbar.name, true, this.props.onBoxAdded, this.props.boxes, item.toolbar.style);
             });
         }
-    }
+    };
 
     componentDidMount() {
         window.addEventListener('keyup', this.toggleModal);
@@ -538,6 +512,26 @@ export default class RichMarksModal extends Component {
     }
 
 }
+
+function mapStateToProps(state) {
+    return{
+        boxSelected: state.undoGroup.present.boxSelected,
+        pluginToolbar: state.undoGroup.present.pluginToolbarsById[state.undoGroup.present.boxSelected],
+        pluginToolbars: state.undoGroup.present.pluginToolbarsById,
+        navItemSelected: state.undoGroup.present.navItemSelected,
+        viewToolbars: state.undoGroup.present.viewToolbarsById,
+        markCursorValue: state.reactUI.markCursorValue,
+        containedViewSelected: state.undoGroup.present.containedViewSelected,
+        containedViews: state.undoGroup.present.containedViewsById,
+        marks: state.undoGroup.present.marks,
+        navItems: state.undoGroup.present.navItemsById,
+        navItemsIds: state.undoGroup.present.navItemsIds,
+        currentRichMark: state.reactUI.currentRichMark,
+        visible: state.reactUI.richMarksVisible,
+    };
+}
+
+export default connect(mapStateToProps)(RichMarksModal);
 
 RichMarksModal.propTypes = {
     /**
@@ -552,10 +546,6 @@ RichMarksModal.propTypes = {
      * Current selected view (by ID)
      */
     navItemSelected: PropTypes.any.isRequired,
-    /**
-     * Selected contained view
-     */
-    containedViewSelected: PropTypes.any.isRequired,
     /**
      * Object containing all contained views (identified by its ID)
      */

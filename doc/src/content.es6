@@ -239,6 +239,35 @@ export const srcTree = (lang = "es") => {
                         },
                     },
                 },
+                3: {
+                    path: '/api2',
+                    title: 'Themes API',
+                    children: {},
+                    pages:
+                        {
+                            1: {
+                                path: '/api2/intro',
+                                title: '&Creación de temas',
+                                md: true,
+                                fromURL: true,
+                                src: ("/Creacion-de-temas" + langPath + ".md"),
+                            },
+                            2: {
+                                path: '/api2/definition',
+                                title: '&Definición',
+                                md: true,
+                                fromURL: true,
+                                src: ("/Definición-de-temas" + langPath + ".md"),
+                            },
+                            3: {
+                                path: '/api2/resources',
+                                title: '&Recursos',
+                                md: true,
+                                fromURL: true,
+                                src: ("/Recursos" + langPath + ".md"),
+                            },
+                        },
+                },
             },
         },
         5: {

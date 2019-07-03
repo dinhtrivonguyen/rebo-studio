@@ -1,32 +1,23 @@
 import i18n from 'i18next';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { updateUI } from "../../../../common/actions";
+import { connect } from "react-redux";
 
 /**
  * Plugin menu in the editor's navbar
  */
-export default class PluginsMenu extends Component {
-    /**
-     * Constructor
-     */
-    constructor(props) {
-        super(props);
-        this.state = { categories: [] };
-    }
+class PluginsMenu extends Component {
 
-    /**
-     * Click on plugin category callback
-     */
-    openPlugin(category) {
-        this.props.setcat(category);
-    }
+    state = { categories: [] };
 
     /**
      * Render React Component
      * @returns {code}
      */
     render() {
-        let categories = [
+        const { reactUI } = this.props;
+        const categories = [
             {
                 name: 'image',
                 displayName: i18n.t("Images"),
@@ -58,18 +49,37 @@ export default class PluginsMenu extends Component {
             <div className="pluginsMenu" onClick={()=> this.openPlugin("")}>
                 {categories.map((cat, ind)=>{
                     if (this.state.categories.indexOf(cat.name) > -1) {
-                        return (<button key={ind}
-                            className={ this.props.hideTab === 'show' && this.props.category === cat.name ? 'navButtonPlug active' : 'navButtonPlug' }
-                            title={cat.displayName} disabled={false /* disablePlugins*/}
-                            onClick={(e) => { this.props.category === cat.name ? this.openPlugin('') : this.openPlugin(cat.name); e.stopPropagation();}}>
-                            <i className="material-icons showonresize">{cat.icon}</i><span className="hideonresize"> {cat.displayName}</span>
-                        </button>);
+                        return (
+                            <button key={ind}
+                                className={ reactUI.hideTab === 'show' && reactUI.pluginTab === cat.name ? 'navButtonPlug active' : 'navButtonPlug' }
+                                title={cat.displayName}
+                                disabled={false /* disablePlugins*/}
+                                onClick={(e) => this.selectCategory(e, cat)}>
+                                <i className="material-icons showonresize">{cat.icon}</i>
+                                <span className="hideonresize"> {cat.displayName}</span>
+                            </button>);
                     }
                     return null;
                 })}
             </div>
         );
     }
+
+    /**
+     * Click on plugin category callback
+     */
+    openPlugin = (category) => {
+        this.props.dispatch(updateUI({
+            pluginTab: category,
+            hideTab: 'show',
+        }));
+    };
+
+    selectCategory = (event, category) => {
+        const isSelected = this.props.reactUI.pluginTab === category.name;
+        isSelected ? this.openPlugin('') : this.openPlugin(category.name);
+        event.stopPropagation();
+    };
 
     componentDidMount() {
         // Only will show categories that have at least one plugin inside
@@ -84,17 +94,21 @@ export default class PluginsMenu extends Component {
     }
 }
 
+function mapStateToProps(state) {
+    return {
+        reactUI: state.reactUI,
+    };
+}
+
+export default connect(mapStateToProps)(PluginsMenu);
+
 PluginsMenu.propTypes = {
     /**
-     * Plugin's category shown
+     * React UI params
      */
-    category: PropTypes.string.isRequired,
+    reactUI: PropTypes.object.isRequired,
     /**
-     * Toggles the plugin bar's visibility
+     * Redux actions trigger
      */
-    hideTab: PropTypes.oneOf(["show", "hide"]).isRequired,
-    /**
-     * Changes the chosen plugin category
-     * */
-    setcat: PropTypes.func.isRequired,
+    dispatch: PropTypes.func,
 };

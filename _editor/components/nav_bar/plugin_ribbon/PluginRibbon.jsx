@@ -7,16 +7,18 @@ import ReactDOM from 'react-dom';
 import i18n from 'i18next';
 import './_pluginRibbon.scss';
 import { isSortableBox, isSlide, isBox, isContainedView, isSortableContainer } from '../../../../common/utils';
-import { ADD_BOX } from "../../../../common/actions";
 import Alert from './../../common/alert/Alert';
 import { ID_PREFIX_BOX, ID_PREFIX_SORTABLE_CONTAINER } from '../../../../common/constants';
 import { randomPositionGenerator } from './../../clipboard/clipboard.utils';
 import { createBox, instanceExists, releaseClick } from '../../../../common/common_tools';
 
+import { connect } from "react-redux";
+import { updateUI } from "../../../../common/actions";
+
 /**
  * Plugin ribbon inside toolbar
  */
-export default class PluginRibbon extends Component {
+class PluginRibbon extends Component {
     /**
      * Constructor
      * @param props
@@ -29,8 +31,6 @@ export default class PluginRibbon extends Component {
             showed: true,
             alert: null,
         };
-        this.clickAddBox = this.clickAddBox.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
     }
 
     /**
@@ -79,14 +79,14 @@ export default class PluginRibbon extends Component {
      * Scroll handler
      * @param e
      */
-    handleScroll(e) {
+    handleScroll = (e) => {
         let element = this.props.containedViewSelected !== 0 ? document.getElementById("containedCanvas") : document.getElementById("canvas");
         if (e.deltaY > 0) { // scroll-down
             element.scrollTop = element.scrollTop + 20;
         }else{ // scroll-up
             element.scrollTop = element.scrollTop - 20;
         }
-    }
+    };
 
     /**
      * Before component unmounts
@@ -214,7 +214,7 @@ export default class PluginRibbon extends Component {
                             this.clickAddBox(event, name);
 
                         } else {
-                            this.props.onTabHide();
+                            this.onTabHide();
                         }
                     }
                     event.stopPropagation();
@@ -230,7 +230,13 @@ export default class PluginRibbon extends Component {
         interact('.rib').unset();
     }
 
-    clickAddBox(event, name) {
+    onTabHide = () => {
+        this.props.dispatch(updateUI({
+            pluginTab: '',
+        }));
+    };
+
+    clickAddBox = (event, name) => {
         let alert = (msg) => {return <Alert key="alert" className="pageModal"
             show
             hasHeader
@@ -291,11 +297,11 @@ export default class PluginRibbon extends Component {
             }
         }
         createBox(initialParams, name, inASlide, this.props.onBoxAdded, this.props.boxes);
-        this.props.onTabHide();
+        this.onTabHide();
         event.stopPropagation();
         event.preventDefault();
 
-    }
+    };
 }
 
 /** *
@@ -311,11 +317,29 @@ function changeOverflow(bool) {
     document.getElementById('ribbonRow').style.overflowY = bool ? 'visible' : 'hidden';
 }
 
+function mapStateToProps(state) {
+    return {
+        boxSelected: state.undoGroup.present.boxesById[state.undoGroup.present.boxSelected],
+        navItemSelected: state.undoGroup.present.navItemsById[state.undoGroup.present.navItemSelected],
+        navItems: state.undoGroup.present.navItemsById,
+        containedViewSelected: state.undoGroup.present.containedViewsById[state.undoGroup.present.containedViewSelected] || state.undoGroup.present.containedViewSelected,
+        boxes: state.undoGroup.present.boxesById,
+        category: state.reactUI.pluginTab,
+        hideTab: state.reactUI.hideTab,
+    };
+}
+
+export default connect(mapStateToProps)(PluginRibbon);
+
 PluginRibbon.propTypes = {
     /**
     * Indicates if the plugins are disabled
     */
     disabled: PropTypes.bool,
+    /**
+     * Redux actions trigger
+     */
+    dispatch: PropTypes.func,
     /**
      * Current selected view (by ID)
      */
@@ -340,9 +364,6 @@ PluginRibbon.propTypes = {
      * Callback for adding a box
      */
     onBoxAdded: PropTypes.func.isRequired,
-    /**
-     * Closes plugin tab
-     */
-    onTabHide: PropTypes.func.isRequired,
+
 };
 

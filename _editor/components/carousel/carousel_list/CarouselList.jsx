@@ -6,22 +6,27 @@ import { isPage, isSection, isSlide, calculateNewIdOrder } from '../../../../com
 import i18n from 'i18next';
 import './_carouselList.scss';
 import iconPDF from './../../../../dist/images/file-pdf.svg';
-
+import { connect } from 'react-redux';
+import Ediphy from '../../../../core/editor/main';
+import {
+    selectContainedView,
+    addNavItem,
+    expandNavItem, updateViewToolbar,
+    reorderNavItem,
+    selectIndex,
+    selectNavItem } from '../../../../common/actions';
 /**
  * Ediphy CarouselList Component
  * List of all the course's views and contained views
  */
-export default class CarouselList extends Component {
-    constructor(props) {
-        super(props);
+class CarouselList extends Component {
 
-        this.state = {
-            showSortableItems: true,
-            showContainedViews: true,
-        };
-    }
+    state = {
+        showSortableItems: true,
+        showContainedViews: true,
+    };
 
-    getContentHeight() {
+    getContentHeight = () => {
         if(!this.state.showSortableItems && !this.state.showContainedViews) {
             return("50px");
         } else if(this.state.showSortableItems && !this.state.showContainedViews) {
@@ -30,13 +35,12 @@ export default class CarouselList extends Component {
             return "calc(50%)";
         }
         return "calc(100% - 124px)";
-
-    }
+    };
 
     render() {
 
         let containedViewsIncluded = Object.keys(this.props.containedViews).length > 0;
-
+        let dispatch = this.props.dispatch;
         if (!this.props.carouselShow) { return (<div style={{ height: "100%" }}><br /></div>); }
 
         return (
@@ -54,7 +58,7 @@ export default class CarouselList extends Component {
                     className="carList connectedSortables"
                     style={{ height: (this.state.showSortableItems) ? this.getContentHeight() : '0px', display: 'inherit' }}
                     onClick={e => {
-                        this.props.onIndexSelected(this.props.id);
+                        dispatch(selectIndex(this.props.id));
                         e.stopPropagation();
                     }}>
                     {this.props.navItems && this.props.navItems.hasOwnProperty(this.props.id) && this.props.navItems[this.props.id].children.map(id => {
@@ -66,14 +70,15 @@ export default class CarouselList extends Component {
                                     navItemsIds={this.props.navItemsIds}
                                     navItems={this.props.navItems}
                                     navItemSelected={this.props.navItemSelected}
-                                    onNavItemNameChanged={this.props.onNavItemNameChanged}
-                                    onNavItemAdded={this.props.onNavItemAdded}
-                                    onBoxAdded={this.props.onBoxAdded}
-                                    onIndexSelected={this.props.onIndexSelected}
-                                    onNavItemSelected={this.props.onNavItemSelected}
-                                    onNavItemExpanded={this.props.onNavItemExpanded}
+                                    onNavItemNameChanged={(_id, titleStr) => dispatch(updateViewToolbar(_id, titleStr))}
+                                    onNavItemAdded={(_id, name, parent, type, position, background, customSize, hideTitles, hasContent, sortable_id) => dispatch(addNavItem(_id, name, parent, type, position, background, customSize, hideTitles, (type !== 'section' || (type === 'section' && Ediphy.Config.sections_have_content)), sortable_id))}
+                                    onBoxAdded={(ids, draggable, resizable, content, style, state, structure, initialParams) => dispatch(addBox(ids, draggable, resizable, content, style, state, structure, initialParams))}
+                                    onIndexSelected={(_id)=>{dispatch(selectIndex(_id));}}
+                                    onNavItemSelected={_id => dispatch(selectNavItem(_id))}
+                                    onNavItemExpanded={(_id, value) => dispatch(expandNavItem(_id, value))}
                                     viewToolbars={this.props.viewToolbars}
-                                    onNavItemReordered={this.props.onNavItemReordered} />
+                                    onNavItemReordered={(_id, newParent, oldParent, idsInOrder, childrenInOrder) => dispatch(reorderNavItem(_id, newParent, oldParent, idsInOrder, childrenInOrder))}
+                                />
                             );
                         } else if (isPage(id)) {
                             let classSelected = (this.props.navItemSelected === id) ? 'selected' : 'notSelected';
@@ -84,15 +89,16 @@ export default class CarouselList extends Component {
                                     id={id}
                                     className={'navItemBlock ' + classSelected + classIndexSelected}
                                     onMouseDown={e => {
-                                        this.props.onIndexSelected(id);
+                                        dispatch(selectIndex(id));
                                         e.stopPropagation();
                                     }}
                                     onClick={e => {
-                                        this.props.onIndexSelected(id);
+                                        dispatch(selectIndex(id));
                                         e.stopPropagation();
                                     }}
                                     onDoubleClick={e => {
                                         this.props.onNavItemSelected(id);
+                                        dispatch(selectNavItem(id));
                                         e.stopPropagation();
                                     }}>
                                     <span style={{ marginLeft: 20 * (this.props.navItems[id].level - 1) }}>
@@ -105,7 +111,7 @@ export default class CarouselList extends Component {
                                             title={this.props.viewToolbars[id].viewName}
                                             index={this.props.navItems[this.props.navItems[id].parent].children.indexOf(id) + 1 + '.'}
                                             hidden={this.props.navItems[id].hidden}
-                                            onNameChanged={this.props.onNavItemNameChanged}/>
+                                            onNameChanged={(_id, titleStr) => dispatch(updateViewToolbar(_id, titleStr))}/>
                                     </span>
                                 </div>
                             );
@@ -145,12 +151,12 @@ export default class CarouselList extends Component {
                                         backgroundColor: (this.props.containedViewSelected === id) ? "#222" : "transparent",
                                     }}
                                     onDoubleClick={e => {
-                                        this.props.onContainedViewSelected(id);
+                                        dispatch(selectIndex(id));
                                         e.stopPropagation();
 
                                     }}
                                     onClick={e => {
-                                        this.props.onIndexSelected(id);
+                                        dispatch(selectIndex(id));
                                         e.stopPropagation();
                                     }}>
 
@@ -162,7 +168,7 @@ export default class CarouselList extends Component {
                                             title={this.props.viewToolbars[id].viewName}
                                             index={1}
                                             hidden={false}
-                                            onNameChanged={this.props.onContainedViewNameChanged} />
+                                            onNameChanged={(_id, titleStr) => dispatch(updateViewToolbar(_id, titleStr))} />
                                     </span>
                                 </div>
                             );
@@ -210,14 +216,13 @@ export default class CarouselList extends Component {
                     // This is necessary in order to avoid that JQuery touches the DOM
                     // It has to be BEFORE action is dispatched and React tries to repaint
                     list.sortable('cancel');
-
-                    this.props.onNavItemReordered(
+                    this.props.dispatch(reorderNavItem(
                         this.props.indexSelected, // item moved
                         this.props.id, // new parent
                         this.props.navItems[this.props.indexSelected].parent, // old parent
                         calculateNewIdOrder(this.props.navItemsIds, newChildren, this.props.id, this.props.indexSelected, this.props.navItems),
                         newChildren
-                    );
+                    ));
                 }
             },
             receive: (event, ui) => {
@@ -233,13 +238,13 @@ export default class CarouselList extends Component {
                 // It has to be BEFORE action is dispatched and React tries to repaint
                 $(ui.sender).sortable('cancel');
 
-                this.props.onNavItemReordered(
+                this.props.dispatch(reorderNavItem(
                     this.props.indexSelected, // item moved
                     this.props.id, // new parent
                     this.props.navItems[this.props.indexSelected].parent, // old parent
                     calculateNewIdOrder(this.props.navItemsIds, newChildren, this.props.id, this.props.indexSelected, this.props.navItems),
                     newChildren
-                );
+                ));
             },
         });
     }
@@ -249,7 +254,26 @@ export default class CarouselList extends Component {
     }
 }
 
+export default connect(mapStateToProps)(CarouselList);
+
+function mapStateToProps(state) {
+    return {
+        navItemSelected: state.undoGroup.present.navItemSelected,
+        containedViewSelected: state.undoGroup.present.containedViewSelected,
+        navItems: state.undoGroup.present.navItemsById,
+        containedViews: state.undoGroup.present.containedViewsById,
+        boxSelected: state.undoGroup.present.boxSelected,
+        indexSelected: state.undoGroup.present.indexSelected,
+        navItemsIds: state.undoGroup.present.navItemsIds,
+        viewToolbars: state.undoGroup.present.viewToolbarsById,
+    };
+}
+
 CarouselList.propTypes = {
+    /**
+     * Redux actions dispatcher
+     */
+    dispatch: PropTypes.func,
     /**
      * Global parent of navItems (0)
      */
@@ -283,43 +307,11 @@ CarouselList.propTypes = {
      */
     navItemsIds: PropTypes.array.isRequired,
     /**
-     * Callback for adding a new box
-     */
-    onBoxAdded: PropTypes.func.isRequired,
-    /**
-     * Callback for selecting contained view
-     */
-    onContainedViewNameChanged: PropTypes.func.isRequired,
-    /**
-     * Callback for renaming contained view
-     */
-    onContainedViewSelected: PropTypes.func.isRequired,
-    /**
-     * Callback for renaming view
-     */
-    onIndexSelected: PropTypes.func.isRequired,
-    /**
-     * Adds a new view
-     */
-    onNavItemAdded: PropTypes.func.isRequired,
-    /**
-     * Expands navItem (only for sections)
-     */
-    onNavItemExpanded: PropTypes.func.isRequired,
-    /**
-     * Callback for renaming view
-     */
-    onNavItemNameChanged: PropTypes.func.isRequired,
-    /**
-     * Callback for reordering navItems
-     */
-    onNavItemReordered: PropTypes.func.isRequired,
-    /**
-     * Selects a view
-     */
-    onNavItemSelected: PropTypes.func.isRequired,
-    /**
      * Object containing all the pages' toolbars
      */
     viewToolbars: PropTypes.object.isRequired,
+    /**
+     * Select nav item
+     */
+    onNavItemSelected: PropTypes.func,
 };

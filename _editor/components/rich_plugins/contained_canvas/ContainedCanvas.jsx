@@ -5,33 +5,24 @@ import EditorCanvasSli from '../../canvas/editor_canvas_sli/EditorCanvasSli';
 import EditorCanvasDoc from '../../canvas/editor_canvas_doc/EditorCanvasDoc';
 import { isSlide } from '../../../../common/utils';
 
+import { connect } from "react-redux";
+
 /**
  * ContainerJS component to render contained views
  *
  */
-export default class ContainedCanvas extends Component {
-    /**
-     * Constructor
-     * @param props
-     */
-    constructor(props) {
-        super(props);
-        /**
-         * Component's initial state
-         * @type {{showTitle: boolean}}
-         */
-        this.state = {
-            showTitle: false,
-        };
-    }
+class ContainedCanvas extends Component {
+
+    state = { showTitle: false };
 
     /**
      * Render React Component
      * @returns {*}
      */
     render() {
+        const containedViewSelected = this.props.containedViewSelected;
+
         let canvasContent;
-        let containedViewSelected = this.props.containedViewSelected;
         if (containedViewSelected && containedViewSelected !== 0) {
             if (isSlide(containedViewSelected.type)) {
                 canvasContent = (<EditorCanvasSli fromCV {...this.props} />);
@@ -39,13 +30,11 @@ export default class ContainedCanvas extends Component {
                 canvasContent = (<EditorCanvasDoc fromCV {...this.props} />);
             }
         } else {
-            canvasContent = (<Col id="containedCanvas"
-                md={12}
-                xs={12}
+            canvasContent = (<Col id="containedCanvas" md={12} xs={12}
                 style={{
                     height: "100%",
                     padding: 0,
-                    display: this.props.containedViewSelected !== 0 ? 'initial' : 'none',
+                    display: containedViewSelected !== 0 ? 'initial' : 'none',
                 }} />);
 
         }
@@ -66,11 +55,31 @@ export default class ContainedCanvas extends Component {
 
 }
 
+function mapStateToProps(state) {
+    return{
+        title: state.undoGroup.present.globalConfig.title || '---',
+        boxes: state.undoGroup.present.boxesById,
+        grid: state.reactUI.grid,
+        boxSelected: state.undoGroup.present.boxSelected,
+        boxLevelSelected: state.undoGroup.present.boxLevelSelected,
+        marks: state.undoGroup.present.marks,
+        navItems: state.undoGroup.present.navItemsById,
+        navItemSelected: state.undoGroup.present.navItemsById[state.undoGroup.present.navItemSelected],
+        containedViews: state.undoGroup.present.containedViewsById,
+        containedViewSelected: state.undoGroup.present.containedViewsById[state.undoGroup.present.containedViewSelected] || 0,
+        showCanvas: state.undoGroup.present.navItemSelected !== 0,
+        pluginToolbars: state.undoGroup.present.pluginToolbarsById,
+        viewToolbars: state.undoGroup.present.viewToolbarsById,
+        aspectRatio: state.undoGroup.present.globalConfig.canvasRatio,
+        markCreatorId: state.reactUI.markCreatorVisible,
+        exercises: state.undoGroup.present.exercises,
+        fileModalResult: state.reactUI.fileModalResult,
+    };
+}
+
+export default connect(mapStateToProps)(ContainedCanvas);
+
 ContainedCanvas.propTypes = {
-    /**
-     * Relación de aspecto para diapositivas
-     */
-    canvasRatio: PropTypes.number.isRequired,
     /**
      * Indicador de si se muestra el canvas (tiene qu haber un navItem seleccionado)
      */
