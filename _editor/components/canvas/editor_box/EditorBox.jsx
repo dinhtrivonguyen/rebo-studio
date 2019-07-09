@@ -15,6 +15,7 @@ import CKEDitorComponent from './CKEDitorComponent';
 const SNAP_DRAG = 5;
 const SNAP_SIZE = 2;
 let html2json = require('html2json').html2json;
+import { connect } from "react-redux";
 
 /**
  * Ediphy Box component.
@@ -32,10 +33,14 @@ class EditorBox extends Component {
      */
     render() {
 
-        let cornerSize = 15;
-        let box = this.props.boxes[this.props.id];
-        let toolbar = this.props.pluginToolbars[this.props.id];
-        let vis = this.props.boxSelected === this.props.id;
+        const { onBoxAdded, onBoxSelected } = this.props.handleBoxes;
+
+        const { addMarkShortcut, deleteMarkCreator, onRichMarksModalToggled } = this.props.handleMarks;
+
+        const cornerSize = 15;
+        const box = this.props.boxes[this.props.id];
+        const toolbar = this.props.pluginToolbars[this.props.id];
+        const vis = this.props.boxSelected === this.props.id;
         let style = {
             visibility: (toolbar.showTextEditor ? 'hidden' : 'visible'),
             overflow: 'hidden',
@@ -45,7 +50,7 @@ class EditorBox extends Component {
             height: (toolbar.showTextEditor ? '100%' : '100%'),
             display: (toolbar.showTextEditor ? 'block' : 'none'),
         };
-        let attrs, marks = {};
+        let marks = this.getMarks(this.props.marks, this.props.id);
         let { width, height, widthUnit, heightUnit } = toolbar.structure;
         let classNames = "";
         let apiPlugin = Ediphy.Plugins.get(toolbar.pluginId);
@@ -54,11 +59,6 @@ class EditorBox extends Component {
             textareaStyle.textAlign = "left";
             style.textAlign = "left";
         }
-        Object.keys(this.props.marks || {}).forEach(mark =>{
-            if(this.props.marks[mark].origin === this.props.id) {
-                marks[mark] = this.props.marks[mark];
-            }
-        });
 
         let toolbarStyle = {};
         for (let propCSS in toolbar.style) {
@@ -113,11 +113,11 @@ class EditorBox extends Component {
             },
         };
         let content = config.flavor === "react" ? (
-            <div style={style} {...attrs} className={"boxStyle " + classNames} ref={"content"}>
+            <div style={style} className={"boxStyle " + classNames} ref={"content"}>
                 {Ediphy.Plugins.get(toolbar.pluginId).getRenderTemplate(toolbar.state, props)}
             </div>
         ) : (
-            <div style={style} {...attrs} className={"boxStyle " + classNames} ref={"content"}>
+            <div style={style} className={"boxStyle " + classNames} ref={"content"}>
                 {this.renderChildren(html2json(Ediphy.Plugins.get(toolbar.pluginId).getRenderTemplate(toolbar.state, props)))}
             </div>
         );
@@ -125,21 +125,21 @@ class EditorBox extends Component {
             <div style={{ visibility: (vis ? 'visible' : 'hidden') }}>
                 <div style={{
                     position: 'absolute',
-                    top: -(this.borderSize),
-                    left: -(this.borderSize),
+                    top: -(this.state.borderSize),
+                    left: -(this.state.borderSize),
                     width: '100%',
                     height: '100%',
                     boxSizing: 'content-box',
                 }} />
-                <div style={{ zIndex: 9999, display: 'initial' /* box.resizable ? 'initial' : 'none'*/ }}>
-                    <div className="helpersResizable" onClick={(e)=>{e.stopPropagation();}}
-                        style={{ left: -cornerSize / 2, top: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'nw-resize' /* (!isSortableContainer(box.container) ? 'nw-resize' : 'move')*/ }} />
-                    <div className="helpersResizable" onClick={(e)=>{e.stopPropagation();}}
-                        style={{ right: -cornerSize / 2, top: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'ne-resize'/* (!isSortableContainer(box.container) ? 'ne-resize' : 'move')*/ }} />
-                    <div className="helpersResizable" onClick={(e)=>{e.stopPropagation();}}
-                        style={{ left: -cornerSize / 2, bottom: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'sw-resize'/* (!isSortableContainer(box.container) ? 'sw-resize' : 'move')*/ }} />
-                    <div className="helpersResizable" onClick={(e)=>{e.stopPropagation();}}
-                        style={{ right: -cornerSize / 2, bottom: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'se-resize'/* (!isSortableContainer(box.container) ? 'se-resize' : 'move')*/ }} />
+                <div style={{ zIndex: 9999, display: 'initial' }}>
+                    <div className="helpersResizable" onClick={this.stopEventPropagation}
+                        style={{ left: -cornerSize / 2, top: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'nw-resize' }} />
+                    <div className="helpersResizable" onClick={this.stopEventPropagation}
+                        style={{ right: -cornerSize / 2, top: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'ne-resize' }} />
+                    <div className="helpersResizable" onClick={this.stopEventPropagation}
+                        style={{ left: -cornerSize / 2, bottom: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'sw-resize' }} />
+                    <div className="helpersResizable" onClick={this.stopEventPropagation}
+                        style={{ right: -cornerSize / 2, bottom: -cornerSize / 2, width: cornerSize, height: cornerSize, cursor: 'se-resize' }} />
                 </div>
             </div>
         );
@@ -167,7 +167,7 @@ class EditorBox extends Component {
                         }
                         // If it is a box inside another box, you are only allowed to select it if you have its parent box selected
                         if (box.level < 1 || box.level < this.props.boxLevelSelected || isAncestorOrSibling(this.props.boxSelected, this.props.id, this.props.boxes)) {
-                            this.props.onBoxSelected(this.props.id);
+                            onBoxSelected(this.props.id);
                         }
                     }
                     e.stopPropagation();
@@ -186,9 +186,9 @@ class EditorBox extends Component {
                     onBlur={this.blurTextarea}/> : null}
                 <div className="boxOverlay" style={{ display: showOverlay }} />
                 <MarkCreator
-                    addMarkShortcut={this.props.addMarkShortcut}
-                    deleteMarkCreator={this.props.deleteMarkCreator}
-                    onBoxAdded={this.props.onBoxAdded}
+                    addMarkShortcut={addMarkShortcut}
+                    deleteMarkCreator={deleteMarkCreator}
+                    onBoxAdded={onBoxAdded}
                     boxSelected={this.props.boxSelected}
                     containedViews={this.props.containedViews}
                     toolbar={toolbar ? toolbar : {}}
@@ -196,7 +196,7 @@ class EditorBox extends Component {
                     markCreatorId={this.props.markCreatorId}
                     currentId={this.props.id}
                     pageType={this.props.pageType}
-                    onRichMarksModalToggled={this.props.onRichMarksModalToggled} />
+                    onRichMarksModalToggled={onRichMarksModalToggled} />
             </div>
         );
     }
@@ -263,6 +263,8 @@ class EditorBox extends Component {
         }
         return React.createElement(component, props, children);
     }
+
+    stopEventPropagation = e => e.stopPropagation();
 
     /**
      * Blurs text area and saves data
@@ -355,20 +357,18 @@ class EditorBox extends Component {
     componentDidMount() {
         let toolbar = this.props.pluginToolbars[this.props.id];
         let apiPlugin = Ediphy.Plugins.get(toolbar.pluginId);
-        let config = apiPlugin.getConfig();
         let box = this.props.boxes[this.props.id];
         let container = box.container;
         let offsetEl = document.getElementById('maincontent') ? document.getElementById('maincontent').getBoundingClientRect() : {};
         let leftO = offsetEl.left || 0;
         let topO = offsetEl.top || 0;
-        offsetEl;
         let gridTarget = interact.createSnapGrid({ x: SNAP_DRAG, y: SNAP_DRAG, range: Math.floor(SNAP_DRAG / 2), offset: { x: leftO, y: topO } });
         let dragTarget = interact.createSnapGrid({ x: SNAP_DRAG, y: SNAP_DRAG, range: (SNAP_DRAG / 2 + 1), offset: { x: leftO, y: topO } });
 
         let targets = this.props.grid ? [gridTarget] : [];
         let dragTargets = this.props.grid ? [dragTarget] : [];
         apiPlugin.afterRender(this.refs.content, toolbar.state);
-        let dragRestrictionSelector = ".parentRestrict"; // isSortableContainer(box.container) ? ".scrollcontainer" : "parent";
+        let dragRestrictionSelector = ".parentRestrict";
         let resizeRestrictionSelector = isSortableContainer(box.container) ? "body" : "parent";
         let canvas = this.props.containedViewSelected === 0 ?
             document.getElementById('canvas') :
@@ -396,7 +396,7 @@ class EditorBox extends Component {
                 onstart: (event) => {
                     event.stopPropagation();
                     if (this.props.boxSelected !== this.props.id) {
-                        this.props.onBoxSelected(this.props.id);
+                        this.props.handleBoxes.onBoxSelected(this.props.id);
                     }
                     container = this.props.boxes[this.props.id].container;
                     // If contained in smth different from ContainedCanvas (sortableContainer || PluginPlaceHolder), clone the node and hide the original
@@ -567,7 +567,7 @@ class EditorBox extends Component {
                     let containerHoverID = releaseClick(releaseClickEl, 'sc-');
                     // TODO Comentar?
                     if (box.container === 0) {
-                        this.props.onBoxMoved(
+                        this.props.handleBoxes.onBoxMoved(
                             this.props.id,
                             isSortableContainer(box.container) ? left : absoluteLeft,
                             isSortableContainer(box.container) ? top : absoluteTop,
@@ -632,22 +632,10 @@ class EditorBox extends Component {
                     let cos = Math.cos(toolbar.structure.rotation * Math.PI / 180);
                     let sin = Math.sin(toolbar.structure.rotation * Math.PI / 180);
                     let r = cos * cos - sin * sin;
-                    // target.style.width = (h*sin-w*cos) + 'px';
-                    // target.style.height = (h*cos-w*sin) + 'px';
 
                     target.style.width = (w * cos - h * sin) / r + 'px';
                     target.style.height = (h * cos - w * sin) / r + 'px';
 
-                    // toolbar =   this.props.pluginToolbars[this.props.id];
-                    //
-                    // let cos = Math.cos(toolbar.structure.rotation*Math.PI /180);
-                    // let sin = Math.sin(toolbar.structure.rotation*Math.PI /180);
-                    // console.log(event.rect.width, event.rect.height)
-                    // // target.style.width = (event.rect.height * cos + event.rect.width* sin  ) + "px";
-                    // // target.style.height =  (event.rect.height * sin + event.rect.width* cos  ) + "px";
-                    // target.style.width = (event.rect.width * sin) + "px";
-                    // target.style.height = (event.rect.width * cos) + "px";
-                    // translate when resizing from top or left edges
                     x += event.deltaRect.left;
                     y += event.deltaRect.top;
                     if(box.resizable) { // Only in slide
@@ -704,7 +692,7 @@ class EditorBox extends Component {
                     target.style.width = widthButton.value === 'auto' ? 'auto' : widthButton.value + widthButton.units;
                     target.style.height = heightButton.value === 'auto' ? 'auto' : heightButton.value + heightButton.units;
 
-                    this.props.onBoxResized(this.props.id, {
+                    this.props.handleBoxes.onBoxResized(this.props.id, {
                         width: widthButton.value,
                         widthUnit: widthButton.units,
                         height: heightButton.value,
@@ -753,6 +741,17 @@ class EditorBox extends Component {
         return 0;
     }
 
+    getMarks = (marks, id) => {
+        let myMarks = {};
+        Object.keys(marks || {}).forEach(mark =>{
+            if(marks[mark].origin === id) {
+                myMarks[mark] = marks[mark];
+            }
+        });
+
+        return myMarks;
+    };
+
     /**
      * Before component unmounts
      * Unset interact listeners
@@ -773,7 +772,22 @@ class EditorBox extends Component {
     };
 }
 
-export default EditorBox;
+function mapStateToProps(state) {
+    return {
+        boxes: state.undoGroup.present.boxesById,
+        boxSelected: state.undoGroup.present.boxSelected,
+        boxLevelSelected: state.undoGroup.present.boxLevelSelected,
+        containedViews: state.undoGroup.present.containedViewsById,
+        containedViewSelected: state.undoGroup.present.containedViewSelected,
+        pluginToolbars: state.undoGroup.present.pluginToolbarsById,
+        marks: state.undoGroup.present.marksById,
+        exercises: state.undoGroup.present.exercises,
+        markCreatorId: state.reactUI.markCreatorVisible,
+        lastActionDispatched: state.undoGroup.present.lastActionDispatched || "",
+    };
+}
+
+export default connect(mapStateToProps)(EditorBox);
 
 EditorBox.propTypes = {
     /**
@@ -801,21 +815,17 @@ EditorBox.propTypes = {
      */
     containedViewSelected: PropTypes.any.isRequired,
     /**
+     * Collection of callbacks for boxes handling
+     */
+    handleBoxes: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for marks handling
+     */
+    handleMarks: PropTypes.object.isRequired,
+    /**
      * Object containing all the toolbars
      */
     pluginToolbars: PropTypes.object.isRequired,
-    /**
-     * Last action dispatched in Redux
-     */
-    lastActionDispatched: PropTypes.any.isRequired,
-    /**
-     * Callback for when adding a mark
-     */
-    addMarkShortcut: PropTypes.func.isRequired,
-    /**
-     * Callback for when deleting a mark
-     */
-    deleteMarkCreator: PropTypes.func.isRequired,
     /**
      * Identifier of the box that is currently in process of creating a mark
      */
@@ -825,42 +835,6 @@ EditorBox.propTypes = {
      */
     marks: PropTypes.object,
     /**
-     * Callback for adding a box
-     */
-    onBoxAdded: PropTypes.func.isRequired,
-    /**
-     * Selects a box
-     */
-    onBoxSelected: PropTypes.func.isRequired,
-    /**
-     * Icreases box level selected
-     */
-    onBoxLevelIncreased: PropTypes.func.isRequired,
-    /**
-     * Callback for when moving a box
-     */
-    onBoxMoved: PropTypes.func.isRequired,
-    /**
-     * Callback for when resizing a box
-     */
-    onBoxResized: PropTypes.func.isRequired,
-    /**
-     * Callback for when dropping a box
-     */
-    onBoxDropped: PropTypes.func.isRequired,
-    /**
-     * Callback for when vertically aligning boxes inside a container
-     */
-    onVerticallyAlignBox: PropTypes.func.isRequired,
-    /**
-     * Callback for when reordering boxes inside a container
-     */
-    onBoxesInsideSortableReorder: PropTypes.func.isRequired,
-    /**
-     * Callback for when resizing a sortable container
-     */
-    onSortableContainerResized: PropTypes.func.isRequired,
-    /**
      * Callback for toggling the CKEDitor
      */
     onTextEditorToggled: PropTypes.func.isRequired,
@@ -868,10 +842,6 @@ EditorBox.propTypes = {
      * Page type the box is at
      */
     pageType: PropTypes.string.isRequired,
-    /**
-      * Callback for toggling the Rich Marks Modal
-      */
-    onRichMarksModalToggled: PropTypes.func.isRequired,
     /**
       * Snap to grid flag
       */

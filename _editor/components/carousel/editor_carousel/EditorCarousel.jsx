@@ -20,6 +20,7 @@ class EditorCarousel extends Component
      * @returns {code}
      */
     render() {
+
         return (
             <div id="colLeft" className="wrapperCarousel"
                 style={{
@@ -31,7 +32,8 @@ class EditorCarousel extends Component
                     carouselShow={this.props.carouselShow}
                     courseTitle={this.props.title}
                     onTitleChanged={this.props.onTitleChanged}
-                    onToggleWidth={this.onToggleWidth} />
+                    onToggleWidth={this.onToggleWidth}
+                />
                 <FileTree
                     carouselShow={this.props.carouselShow}
                     containedViews={this.props.containedViews}
@@ -42,26 +44,17 @@ class EditorCarousel extends Component
                     navItemSelected={this.props.navItemSelected}
                     indexSelected={this.props.indexSelected}
                     onBoxAdded={this.props.onBoxAdded}
-                    onContainedViewDeleted={this.props.onContainedViewDeleted}
-                    onContainedViewSelected={this.props.onContainedViewSelected}
-                    onContainedViewNameChanged={this.props.onContainedViewNameChanged}
-                    onNavItemNameChanged={this.props.onNavItemNameChanged}
-                    onNavItemAdded={this.props.onNavItemAdded}
-                    onNavItemSelected={this.props.onNavItemSelected}
                     onIndexSelected={this.props.onIndexSelected}
-                    onNavItemExpanded={this.props.onNavItemExpanded}
-                    onNavItemDeleted={this.props.onNavItemDeleted}
-                    onNavItemReordered={this.props.onNavItemReordered}
+                    handleContainedViews={this.props.handleContainedViews}
+                    handleNavItems = {this.props.handleNavItems}
                     viewToolbars={this.props.viewToolbars}
                 />
                 <CarouselButtons
                     carouselShow={this.props.carouselShow}
-                    onNavItemAdded={this.props.onNavItemAdded}
                     onBoxAdded={this.props.onBoxAdded}
-                    onNavItemExpanded={this.props.onNavItemExpanded}
                     onIndexSelected={this.props.onIndexSelected}
-                    onNavItemDuplicated={this.props.onNavItemDuplicated}
-                    onNavItemDeleted={this.props.onNavItemDeleted} />
+                    handleNavItems={this.props.handleNavItems}
+                />
             </div>
         );
     }
@@ -73,7 +66,7 @@ class EditorCarousel extends Component
                 carouselFull: false,
             }));
         } else {
-            this.props.dispatch(updateUI(UI.carouselShow, true));
+            this.props.dispatch(updateUI({ carouselShow: true }));
         }
     }
 
@@ -128,6 +121,14 @@ EditorCarousel.propTypes = {
      */
     navItemSelected: PropTypes.any,
     /**
+     * Collection of callbacks for contained views handling
+     */
+    handleContainedViews: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for nav items handling
+     */
+    handleNavItems: PropTypes.object.isRequired,
+    /**
      * View/Contained view selected at the index
      */
     indexSelected: PropTypes.any,
@@ -135,18 +136,6 @@ EditorCarousel.propTypes = {
      * Callback for adding a box
      */
     onBoxAdded: PropTypes.func.isRequired,
-    /**
-     *  Removes a contained view
-     */
-    onContainedViewDeleted: PropTypes.func.isRequired,
-    /**
-     *  Callback for selecting contained view
-     */
-    onContainedViewSelected: PropTypes.func.isRequired,
-    /**
-     * Callback for renaming contained view
-     */
-    onContainedViewNameChanged: PropTypes.func.isRequired,
     /**
      * Callback for renaming view
      */
@@ -167,34 +156,6 @@ EditorCarousel.propTypes = {
      * Select new index
      */
     onIndexSelected: PropTypes.func.isRequired,
-    /**
-     * Duplicate nav item
-     */
-    onNavItemDuplicated: PropTypes.func.isRequired,
-    /**
-     * Change nav item name
-     */
-    onNavItemNameChanged: PropTypes.func.isRequired,
-    /**
-     * Add nav item
-     */
-    onNavItemAdded: PropTypes.func.isRequired,
-    /**
-     * Select nav item
-     */
-    onNavItemSelected: PropTypes.func.isRequired,
-    /**
-     * Expand nav item
-     */
-    onNavItemExpanded: PropTypes.func.isRequired,
-    /**
-     * Delete nav item
-     */
-    onNavItemDeleted: PropTypes.func.isRequired,
-    /**
-     * Reorder nav item
-     */
-    onNavItemReordered: PropTypes.func.isRequired,
     /**
      * Change title
      */

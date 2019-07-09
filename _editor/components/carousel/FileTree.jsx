@@ -80,9 +80,9 @@ class FileTree extends Component {
 
         if (newParentId !== 0) {
             let shouldChildExpand = movedItem.type === 'file' && this.props.navItems[newParentId].isExpanded;
-            this.props.onNavItemExpanded(movedItem.id, shouldChildExpand);
+            this.props.handleNavItems.onNavItemExpanded(movedItem.id, shouldChildExpand);
         }
-        this.props.onNavItemReordered(movedItem.id, newParentId, oldParentId, idsInOrder, childrenInOrder);
+        this.props.handleNavItems.onNavItemReordered(movedItem.id, newParentId, oldParentId, idsInOrder, childrenInOrder);
     };
 
     getImmediateDescendants = (items, parentId) => {
@@ -98,14 +98,14 @@ class FileTree extends Component {
         const expandedItemId = items[index].id;
         const expands = items[index].collapsed;
 
-        this.props.onNavItemExpanded(expandedItemId, expands);
+        this.props.handleNavItems.onNavItemExpanded(expandedItemId, expands);
 
         if (!expands) {
-            descendants.forEach(item => this.props.onNavItemExpanded(item.id, expands));
+            descendants.forEach(item => this.props.handleNavItems.onNavItemExpanded(item.id, expands));
         } else {
             descendants.forEach(item => {
                 const immediateChild = item.path.slice(-1)[0] === parentId;
-                if (immediateChild && item.type !== "folder") { this.props.onNavItemExpanded(item.id, expands); }
+                if (immediateChild && item.type !== "folder") { this.props.handleNavItems.onNavItemExpanded(item.id, expands); }
             });
         }
     };
@@ -113,8 +113,8 @@ class FileTree extends Component {
     renderItem = (props) => { return <ItemRenderer {...props}
         onToggleCollapse={this.handleToggleCollapse}
         onIndexSelected = {this.props.onIndexSelected}
-        onNavItemSelected={this.props.onNavItemSelected}
-        onNavItemNameChanged={this.props.onNavItemNameChanged}
+        onNavItemSelected={this.props.handleNavItems.onNavItemSelected}
+        onNavItemNameChanged={this.props.handleNavItems.onNavItemNameChanged}
         navItems={this.props.navItems}
         viewToolbars={this.props.viewToolbars}
         containedViewSelected={this.props.containedViewSelected}
@@ -136,7 +136,6 @@ class FileTree extends Component {
 
     render() {
         if (!this.props.carouselShow) { return (<div style={{ height: "100%" }}><br /></div>); }
-
         return (
             <div className={"carousselListContainer"} style={{ height: '100%' }}>
                 <div id="sortablesCollapse" style={{ height: "20px", backgroundColor: "black", marginBottom: "2px", paddingLeft: "10px", cursor: 'pointer' }} onClick={()=> {
@@ -175,25 +174,11 @@ class FileTree extends Component {
                 <ContainedViewsList
                     showContainedViews = {this.state.showContainedViews}
                     showSortableItems = {this.state.showSortableItems}
-                    carouselShow={this.props.carouselShow}
                     containedViews={this.props.containedViews}
                     containedViewSelected={this.props.containedViewSelected}
-                    boxes={this.props.boxes}
-                    navItemsIds={this.props.navItemsIds}
-                    navItems={this.props.navItems}
-                    navItemSelected={this.props.navItemSelected}
                     indexSelected={this.props.indexSelected}
-                    onBoxAdded={this.props.onBoxAdded}
-                    onContainedViewDeleted={this.props.onContainedViewDeleted}
-                    onContainedViewSelected={this.props.onContainedViewSelected}
-                    onContainedViewNameChanged={this.props.onContainedViewNameChanged}
-                    onNavItemNameChanged={this.props.onNavItemNameChanged}
-                    onNavItemAdded={this.props.onNavItemAdded}
-                    onNavItemSelected={this.props.onNavItemSelected}
+                    handleContainedViews={this.props.handleContainedViews}
                     onIndexSelected={this.props.onIndexSelected}
-                    onNavItemExpanded={this.props.onNavItemExpanded}
-                    onNavItemDeleted={this.props.onNavItemDeleted}
-                    onNavItemReordered={this.props.onNavItemReordered}
                     viewToolbars={this.props.viewToolbars}
                 />
             </div>
@@ -235,9 +220,21 @@ FileTree.propTypes = {
      */
     containedViewSelected: PropTypes.any,
     /**
+     * Collection of callbacks for nav items handling
+     */
+    handleNavItems: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for contained views handling
+     */
+    handleContainedViews: PropTypes.object.isRequired,
+    /**
      * View/Contained view selected at the index
      */
     indexSelected: PropTypes.any,
+    /**
+     * Selects a view/contained view in the index's context
+     */
+    onIndexSelected: PropTypes.func.isRequired,
     /**
      * Dictionary containing all created views, each one with its *id* as the key
      */
@@ -262,38 +259,6 @@ FileTree.propTypes = {
      * Callback for renaming contained view
      */
     onContainedViewSelected: PropTypes.func,
-    /**
-     * Callback for deleting contained view
-     */
-    onContainedViewDeleted: PropTypes.func,
-    /**
-     * Callback for renaming view
-     */
-    onIndexSelected: PropTypes.func,
-    /**
-     * Adds a new view
-     */
-    onNavItemAdded: PropTypes.func,
-    /**
-     * Expands navItem (only for sections)
-     */
-    onNavItemExpanded: PropTypes.func,
-    /**
-     * Callback for renaming view
-     */
-    onNavItemNameChanged: PropTypes.func,
-    /**
-     * Callback for reordering navItems
-     */
-    onNavItemReordered: PropTypes.func,
-    /**
-     * Deletes a view
-     */
-    onNavItemDeleted: PropTypes.func,
-    /**
-     * Selects a view
-     */
-    onNavItemSelected: PropTypes.func,
     /**
      * Object containing all the pages' toolbars
      */
@@ -330,6 +295,7 @@ FileTree.propTypes = {
      *  Object containing all created boxes (by id)
      */
     boxes: PropTypes.object,
+
 };
 
 export default DragDropContext(overrideDropCaptureHandler)(FileTree);

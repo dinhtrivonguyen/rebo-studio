@@ -242,6 +242,7 @@ class RichMarksModal extends Component {
                             </Col>
                             <Col xs={8} md={6}>
                                 <FormControl
+                                    key={this.props.markCursorValue}
                                     ref="value"
                                     type={this.state.actualMarkType}
                                     defaultValue={this.props.markCursorValue ? this.props.markCursorValue : (current ? current.value : (defaultMarkValue ? defaultMarkValue : 0))}/>
@@ -253,7 +254,7 @@ class RichMarksModal extends Component {
                 <Modal.Footer>
                     {/* <span>También puedes arrastrar el icono <i className="material-icons">room</i> dentro del plugin del vídeo para añadir una nueva marca</span>*/}
                     <Button onClick={e => {
-                        this.props.onRichMarksModalToggled();
+                        this.props.handleMarks.onRichMarksModalToggled();
                         this.restoreDefaultTemplate();
                     }}>Cancel</Button>
                     <Button bsStyle="primary" onClick={e => {
@@ -271,6 +272,7 @@ class RichMarksModal extends Component {
 
                         let displayMode = this.state.displayMode;
                         let value = ReactDOM.findDOMNode(this.refs.value).value;
+                        // let value = this.props.markCursorValue;
                         // First of all we need to check if the plugin creator has provided a function to check if the input value is allowed
                         if (plugin && plugin.validateValueInput) {
                             let val = plugin.validateValueInput(value);
@@ -367,13 +369,13 @@ class RichMarksModal extends Component {
                             break;
                         }
                         if(this.props.marks[newMark] === undefined) {
-                            this.props.onRichMarkAdded(markState.mark, markState.view, markState.viewToolbar);
+                            this.props.handleMarks.onRichMarkAdded(markState.mark, markState.view, markState.viewToolbar);
                         } else{
-                            this.props.onRichMarkUpdated(markState.mark, markState.view, markState.viewToolbar);
+                            this.props.handleMarks.onRichMarkUpdated(markState.mark, markState.view, markState.viewToolbar);
                         }
                         this.generateTemplateBoxes(this.state.boxes, newId);
                         this.restoreDefaultTemplate();
-                        this.props.onRichMarksModalToggled();
+                        this.props.handleMarks.onRichMarksModalToggled();
                     }}>{i18n.t("marks.save_changes")}</Button>
                 </Modal.Footer>
                 <Alert className="pageModal"
@@ -388,7 +390,6 @@ class RichMarksModal extends Component {
                     close={this.toggleTemplatesModal}
                     navItems={this.props.navItems}
                     boxes={this.props.boxes}
-                    // onNavItemAdded={(id, name, type, color, num, extra)=> {this.props.onNavItemAdded(id, name, this.getParent().id, type, this.calculatePosition(), color, num, extra);}}
                     onIndexSelected={this.props.onIndexSelected}
                     indexSelected={this.props.indexSelected}
                     onBoxAdded={this.props.onBoxAdded}
@@ -449,7 +450,7 @@ class RichMarksModal extends Component {
     toggleModal = (e) => {
         let key = e.keyCode ? e.keyCode : e.which;
         if (key === 27 && this.props.visible) {
-            this.props.onRichMarksModalToggled();
+            this.props.handleMarks.onRichMarksModalToggled();
         }
     };
 
@@ -523,7 +524,7 @@ function mapStateToProps(state) {
         markCursorValue: state.reactUI.markCursorValue,
         containedViewSelected: state.undoGroup.present.containedViewSelected,
         containedViews: state.undoGroup.present.containedViewsById,
-        marks: state.undoGroup.present.marks,
+        marks: state.undoGroup.present.marksById,
         navItems: state.undoGroup.present.navItemsById,
         navItemsIds: state.undoGroup.present.navItemsIds,
         currentRichMark: state.reactUI.currentRichMark,
@@ -563,18 +564,6 @@ RichMarksModal.propTypes = {
      */
     currentRichMark: PropTypes.any,
     /**
-     * Creates a new mark
-     */
-    onRichMarkAdded: PropTypes.func.isRequired,
-    /**
-     * Updates a mark
-     */
-    onRichMarkUpdated: PropTypes.func.isRequired,
-    /**
-     * Show/hide marks modal form
-     */
-    onRichMarksModalToggled: PropTypes.any.isRequired,
-    /**
       * Cursor value when creating mark (coordinates)
       */
     markCursorValue: PropTypes.any,
@@ -602,4 +591,8 @@ RichMarksModal.propTypes = {
      * Contains the id of the selected template
      */
     indexSelected: PropTypes.func,
+    /**
+     * Collection of callbacks for marks handling
+     */
+    handleMarks: PropTypes.object.isRequired,
 };

@@ -79,10 +79,10 @@ class FileModal extends React.Component {
                                         <PDFHandler navItemSelected={this.props.navItemSelected}
                                             boxes={this.props.boxes}
                                             onBoxAdded={this.props.onBoxAdded}
-                                            onNavItemAdded={this.props.onNavItemAdded}
-                                            onNavItemsAdded={this.props.onNavItemsAdded}
+                                            onNavItemAdded={this.props.handleNavItems.onNavItemAdded}
+                                            onNavItemsAdded={this.props.handleNavItems.onNavItemsAdded}
                                             onIndexSelected={this.props.onIndexSelected}
-                                            onNavItemSelected={this.props.onNavItemSelected}
+                                            onNavItemSelected={this.props.handleNavItems.onNavItemSelected}
                                             navItemsIds={this.props.navItemsIds}
                                             navItems={this.props.navItems}
                                             containedViews={this.props.containedViews}
@@ -101,10 +101,10 @@ class FileModal extends React.Component {
                                             self={this}
                                             boxes={this.props.boxes}
                                             onBoxAdded={this.props.onBoxAdded}
-                                            onNavItemAdded={this.props.onNavItemAdded}
-                                            onNavItemsAdded={this.props.onNavItemsAdded}
+                                            onNavItemAdded={this.props.handleNavItems.onNavItemAdded}
+                                            onNavItemsAdded={this.props.handleNavItems.onNavItemsAdded}
                                             onIndexSelected={this.props.onIndexSelected}
-                                            onNavItemSelected={this.props.onNavItemSelected}
+                                            onNavItemSelected={this.props.handleNavItems.onNavItemSelected}
                                             navItemsIds={this.props.navItemsIds}
                                             navItems={this.props.navItems}
                                             containedViews={this.props.containedViews}
@@ -222,21 +222,9 @@ FileModal.propTypes = {
      */
     onBoxAdded: PropTypes.func.isRequired,
     /**
-     * Function for adding a new view
-     */
-    onNavItemAdded: PropTypes.func.isRequired,
-    /**
-     * Function for adding multiple new views
-     */
-    onNavItemsAdded: PropTypes.func.isRequired,
-    /**
      * Function for selecting a view in the index
      */
     onIndexSelected: PropTypes.func.isRequired,
-    /**
-     * Function for displaying a view in the canvas
-     */
-    onNavItemSelected: PropTypes.func.isRequired,
     /**
      * Array containing the ids of all the views
      */
@@ -274,8 +262,8 @@ FileModal.propTypes = {
      */
     close: PropTypes.func.isRequired,
     /**
-     * Import Ediphy Document
+     * Collection of callbacks for nav items handling
      */
-    // importEdi: PropTypes.func.isRequired,
+    handleNavItems: PropTypes.object.isRequired,
 
 };

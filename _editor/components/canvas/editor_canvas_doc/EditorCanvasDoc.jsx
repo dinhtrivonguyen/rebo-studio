@@ -13,11 +13,10 @@ import { connect } from "react-redux";
 
 class EditorCanvasDoc extends Component {
     render() {
-        const { aspectRatio, boxes, boxSelected, containedViewSelected, containedViews,
-            exercises, fromCV, lastActionDispatched, marks, navItemSelected, navItems,
-            onBoxDeleted, onBoxResized, onBoxSelected, onMarkCreatorToggled, onTextEditorToggled,
-            onTitleChanged, onToolbarUpdated, onViewTitleChanged, openConfigModal,
-            openFileModal, pluginToolbars, styleConfig, title, viewToolbars } = this.props;
+        const { aspectRatio, boxes, boxSelected, boxLevelSelected, containedViewSelected, containedViews,
+            exercises, fromCV, lastActionDispatched, marks, markCreatorId, navItemSelected, navItems, onTextEditorToggled,
+            onTitleChanged, onToolbarUpdated, onViewTitleChanged, openConfigModal, openFileModal, pluginToolbars,
+            styleConfig, title, viewToolbars, handleBoxes, handleMarks, handleSortableContainers } = this.props;
 
         const itemSelected = fromCV ? containedViewSelected : navItemSelected;
         const titles = getTitles(itemSelected, viewToolbars, navItems, fromCV);
@@ -29,11 +28,6 @@ class EditorCanvasDoc extends Component {
         let theme = toolbar && toolbar.theme ? toolbar.theme : styleConfig && styleConfig.theme ? styleConfig.theme : 'default';
         let colors = toolbar && toolbar.colors ? toolbar.colors : getThemeColors(theme);
 
-        let commonProps = { ...this.props,
-            pageType: itemSelected.type || 0,
-            themeColors: colors,
-        };
-
         return (
             <Col id={(fromCV ? 'containedCanvas' : 'canvas')} md={12} xs={12} className="canvasDocClass safeZone"
                 style={{ display: containedViewSelected !== 0 && !fromCV ? 'none' : 'initial' }}>
@@ -42,23 +36,15 @@ class EditorCanvasDoc extends Component {
                     style={{ backgroundColor: show ? toolbar.background : 'transparent', display: show ? 'block' : 'none' }}
                     onMouseDown={e => {
                         if (e.target === e.currentTarget) {
-                            onBoxSelected(-1);
+                            handleBoxes.onBoxSelected(-1);
                             this.setState({ showTitle: false });
                         }
                         e.stopPropagation();
                     }}>
                     <EditorHeader
                         titles={titles}
-                        onBoxSelected={onBoxSelected}
+                        onBoxSelected={handleBoxes.onBoxSelected}
                         courseTitle={title}
-                        navItem={navItemSelected}
-                        navItems={navItems}
-                        marks={marks}
-                        containedView={containedViewSelected}
-                        containedViews={containedViews}
-                        pluginToolbars={pluginToolbars}
-                        viewToolbars={viewToolbars}
-                        boxes={boxes}
                         onViewTitleChanged={onViewTitleChanged}
                         onTitleChanged={onTitleChanged}
                     />
@@ -72,13 +58,23 @@ class EditorCanvasDoc extends Component {
                                 style={{ visibility: (show ? 'visible' : 'hidden'), paddingBottom: '10px' }}>
 
                                 <br/>
-
                                 {itemBoxes.map(id => {
                                     if (!isSortableBox(id)) {
                                         return null;
                                     }
-                                    return <EditorBoxSortable key={id} {...commonProps}
-                                        id={id} exercises={exercises} page={itemSelected ? itemSelected.id : 0} themeColors={colors} />;
+                                    return <EditorBoxSortable
+                                        key={id}
+                                        id={id}
+                                        handleBoxes = {handleBoxes}
+                                        handleMarks={handleMarks}
+                                        handleSortableContainers={handleSortableContainers}
+                                        onTextEditorToggled={this.props.onTextEditorToggled}
+                                        pageType={itemSelected.type || 0}
+                                        setCorrectAnswer={this.props.setCorrectAnswer}
+                                        page={itemSelected ? itemSelected.id : 0}
+                                        onToolbarUpdated={onToolbarUpdated}
+                                        themeColors={colors}
+                                    />;
                                 })}
                             </div>
                         </div>
@@ -94,13 +90,13 @@ class EditorCanvasDoc extends Component {
                     openConfigModal={openConfigModal}
                     isContained={fromCV}
                     onTextEditorToggled={onTextEditorToggled}
-                    onBoxResized={onBoxResized}
-                    onBoxDeleted={onBoxDeleted}
+                    onBoxResized={handleBoxes.onBoxResized}
+                    onBoxDeleted={handleBoxes.onBoxDeleted}
                     onToolbarUpdated={onToolbarUpdated}
                     openFileModal={openFileModal}
                     lastActionDispatched={lastActionDispatched}
                     pointerEventsCallback={pluginToolbars[boxSelected] && pluginToolbars[boxSelected].config && pluginToolbars[boxSelected].config.name && Ediphy.Plugins.get(pluginToolbars[boxSelected].config.name) ? Ediphy.Plugins.get(pluginToolbars[boxSelected].config.name).pointerEventsCallback : null}
-                    onMarkCreatorToggled={onMarkCreatorToggled}
+                    onMarkCreatorToggled={handleMarks.onMarkCreatorToggled}
                 />
             </Col>
         );
@@ -165,14 +161,6 @@ EditorCanvasDoc.propTypes = {
      */
     lastActionDispatched: PropTypes.any.isRequired,
     /**
-     * Callback for adding a mark shortcut
-     */
-    addMarkShortcut: PropTypes.func.isRequired,
-    /**
-     * Callback for deleting mark creator overlay
-     */
-    deleteMarkCreator: PropTypes.func.isRequired,
-    /**
      * Identifier of the box that is creating a mark
      */
     markCreatorId: PropTypes.any.isRequired,
@@ -181,69 +169,9 @@ EditorCanvasDoc.propTypes = {
      */
     marks: PropTypes.object,
     /**
-     * Callback for toggling creation mark overlay
-     */
-    onMarkCreatorToggled: PropTypes.func.isRequired,
-    /**
-     * Callback for adding a box
-     */
-    onBoxAdded: PropTypes.func.isRequired,
-    /**
-     * Callback for deleting a box
-     */
-    onBoxDeleted: PropTypes.func.isRequired,
-    /**
-     * Callback for selecting a box
-     */
-    onBoxSelected: PropTypes.func.isRequired,
-    /**
-     * Callback for increasing box level selected (only plugins inside plugins)
-     */
-    onBoxLevelIncreased: PropTypes.func.isRequired,
-    /**
-     * Callback for moving a box
-     */
-    onBoxMoved: PropTypes.func.isRequired,
-    /**
-     * Callback for resizing a box
-     */
-    onBoxResized: PropTypes.func.isRequired,
-    /**
-     * Callback for dropping a box
-     */
-    onBoxDropped: PropTypes.func.isRequired,
-    /**
-     * Callback for vertically aligning boxes inside a container
-     */
-    onVerticallyAlignBox: PropTypes.func.isRequired,
-    /**
-     * Callback for reordering boxes inside a container
-     */
-    onBoxesInsideSortableReorder: PropTypes.func.isRequired,
-    /**
-     * Callback for deleting a sortable container
-     */
-    onSortableContainerDeleted: PropTypes.func.isRequired,
-    /**
-     * Callback for reordering sortable containers
-     */
-    onSortableContainerReordered: PropTypes.func.isRequired,
-    /**
-     * Callback for resizing a sortable container
-     */
-    onSortableContainerResized: PropTypes.func.isRequired,
-    /**
      * Callback for toggling CKEditor
      */
     onTextEditorToggled: PropTypes.func.isRequired,
-    /**
-   * Callback for toggling rich marks modal creator
-   */
-    onRichMarksModalToggled: PropTypes.func.isRequired,
-    /**
-     * Callback for moving marks
-     */
-    onRichMarkMoved: PropTypes.func.isRequired,
     /**
      * Callback for modify navitem title and subtitle
      */
@@ -269,10 +197,6 @@ EditorCanvasDoc.propTypes = {
    */
     onToolbarUpdated: PropTypes.func,
     /**
-     * Last files uploaded to server or searched in modal
-     */
-    fileModalResult: PropTypes.object,
-    /**
      * Function that opens the file search modal
      */
     openFileModal: PropTypes.func.isRequired,
@@ -284,4 +208,16 @@ EditorCanvasDoc.propTypes = {
      * Aspect ratio of slides
      */
     aspectRatio: PropTypes.number,
+    /**
+     * Collection of callbacks for boxes handling
+     */
+    handleBoxes: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for marks handling
+     */
+    handleMarks: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for sortable containers handling
+     */
+    handleSortableContainers: PropTypes.object.isRequired,
 };
