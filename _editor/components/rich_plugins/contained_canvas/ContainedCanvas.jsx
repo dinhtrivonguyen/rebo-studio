@@ -62,6 +62,7 @@ function mapStateToProps(state) {
         grid: state.reactUI.grid,
         boxSelected: state.undoGroup.present.boxSelected,
         boxLevelSelected: state.undoGroup.present.boxLevelSelected,
+        lastActionDispatched: state.undoGroup.present.lastActionDispatched,
         marks: state.undoGroup.present.marksById,
         navItems: state.undoGroup.present.navItemsById,
         navItemSelected: state.undoGroup.present.navItemsById[state.undoGroup.present.navItemSelected],
@@ -136,10 +137,6 @@ ContainedCanvas.propTypes = {
      *  Callback for selecting contained view
      */
     onContainedViewSelected: PropTypes.func.isRequired,
-    /**
-     * Hace aparecer/desaparecer el CKEditor
-     */
-    onTextEditorToggled: PropTypes.func.isRequired,
     /**
      * Whether or not the grid is activated for slides
      */

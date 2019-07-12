@@ -33,13 +33,11 @@ class EditorNavBar extends Component
                 </div>
                 <PluginsMenu/>
                 <NavActionButtons
-                    redo={this.props.redo}
-                    save={this.props.save}
-                    undo={this.props.undo}
+                    save={this.props.handleExportImport.save}
                     toggleStyleConfig={this.toggleStyleConfig}
                 />
                 <NavDropdown
-                    save={this.props.save}
+                    save={this.props.handleExportImport.save}
                     toggleExport={this.toggleExport}
                     toggleFileUpload={this.toggleFileUpload}
                 />
@@ -49,8 +47,8 @@ class EditorNavBar extends Component
                     toggleFileUpload={this.toggleFileUpload}
                 />
                 <ExportModal
-                    export={this.props.export}
-                    scorm={this.props.scorm}
+                    export={this.props.handleExportImport.exportResource}
+                    scorm={this.props.handleExportImport.exportToScorm}
                     close={this.toggleExport} />
             </Col>
         );
@@ -104,27 +102,11 @@ EditorNavBar.propTypes = {
      */
     globalConfig: PropTypes.object.isRequired,
     /**
-     * Undoes the last change
-     */
-    undo: PropTypes.func,
-    /**
-     * Redoes the last change
-     */
-    redo: PropTypes.func,
-    /**
-     * Exports the document to HTML
-     */
-    export: PropTypes.func.isRequired,
-    /**
      * React UI params
      */
     reactUI: PropTypes.object.isRequired,
     /**
-     * Exports the document to SCORM
+     * Collection of functions for export and import handling
      */
-    scorm: PropTypes.func.isRequired,
-    /**
-     * Saves the changes in the server
-     */
-    save: PropTypes.func.isRequired,
+    handleExportImport: PropTypes.object.isRequired,
 };

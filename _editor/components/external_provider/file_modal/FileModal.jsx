@@ -219,6 +219,10 @@ export default connect(mapStateToProps)(FileModal);
 
 FileModal.propTypes = {
     /**
+     * Redux actions dispatcher
+     */
+    dispatch: PropTypes.func.isRequired,
+    /**
      * Whether the file modal is visible or not
      */
     visible: PropTypes.any.isRequired,
@@ -266,10 +270,6 @@ FileModal.propTypes = {
      * Current selected box
      */
     boxSelected: PropTypes.any.isRequired,
-    /**
-     * Function for closing the File Modal
-     */
-    close: PropTypes.func.isRequired,
     /**
      * Collection of callbacks for nav items handling
      */

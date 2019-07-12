@@ -44,7 +44,7 @@ class KeyListener extends Component {
         }
         // Ctrl + A
         if (key === 192 && e.ctrlKey) {
-            this.handleNavItems.onNavItemDuplicated(this.props.navItemSelected);
+            this.props.handleNavItems.onNavItemDuplicated(this.props.navItemSelected);
         }
 
         if (key === 80 && e.ctrlKey && e.shiftKey) {
@@ -63,7 +63,7 @@ class KeyListener extends Component {
                     let box = this.props.boxes[this.props.boxSelected];
                     let toolbar = this.props.pluginToolbars[this.props.boxSelected];
                     if (!toolbar.showTextEditor) {
-                        this.handleBoxes.onBoxDeleted(box.id, box.parent, box.container, this.props.containedViewSelected && this.props.containedViewSelected !== 0 ? this.props.containedViewSelected : this.props.navItemSelected);
+                        this.props.handleBoxes.onBoxDeleted(box.id, box.parent, box.container, this.props.containedViewSelected && this.props.containedViewSelected !== 0 ? this.props.containedViewSelected : this.props.navItemSelected);
                     }
                 }
             }
@@ -96,9 +96,33 @@ export default connect(mapStateToProps)(KeyListener);
 
 KeyListener.propTypes = {
     /**
+     * Object containing every existing box (by id)
+     */
+    boxes: PropTypes.object.isRequired,
+    /**
      * Selected box
      */
     boxSelected: PropTypes.any,
+    /**
+     * Selected contained view (by ID)
+     */
+    containedViewSelected: PropTypes.any.isRequired,
+    /**
+     * Redux actions dispatcher
+     */
+    dispatch: PropTypes.func.isRequired,
+    /**
+     * State of the resource to be exported
+     */
+    fullState: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for boxes handling
+     */
+    handleBoxes: PropTypes.object.isRequired,
+    /**
+     * Collection of callbacks for nav items handling
+     */
+    handleNavItems: PropTypes.object.isRequired,
     /**
      * Current selected view (by ID)
      */
@@ -107,4 +131,5 @@ KeyListener.propTypes = {
      * Plugin toolbars
      */
     pluginToolbars: PropTypes.object,
+
 };
