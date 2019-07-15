@@ -141,15 +141,6 @@ export function createAspectRatioButton(controls, config) {
     }
 }
 
-export function createControls(payload) {
-    let controls = payload || {
-        main: {
-            __name: "Main",
-            accordions: {},
-        },
-    };
-}
-
 export function createAliasButton(controls, state) {
     if (!controls.main) {
         controls.main = {
@@ -424,6 +415,14 @@ export function renderAccordion(accordion, tabKey, accordionKeys, state, key, to
      * @returns {code} Button code
      */
 export function renderButton(accordion, tabKey, accordionKeys, buttonKey, state, key, toolbar_props) {
+    console.log(accordion);
+    console.log(tabKey);
+    console.log(accordionKeys);
+    console.log(buttonKey);
+    console.log(state);
+    console.log(key);
+    console.log(toolbar_props);
+
     let button = accordion.buttons[buttonKey];
 
     let children = null;
