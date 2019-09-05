@@ -1,4 +1,3 @@
-import i18n from 'i18next';
 export const ID_PREFIX_SECTION = "se-";
 export const ID_PREFIX_PAGE = "pa-";
 export const ID_PREFIX_SLIDE = "sl-";
@@ -41,4 +40,29 @@ export const MESSAGE_TYPES = {
     FAVOR: "favor",
 };
 
-MESSAGE_TYPES.NOTIFICATION;
+export const defaultUI = {
+    alert: null,
+    pluginTab: '',
+    hideTab: 'show',
+    visorVisible: false,
+    richMarksVisible: false,
+    markCreatorVisible: false,
+    currentRichMark: null,
+    carouselShow: true,
+    carouselFull: false,
+    serverModal: false,
+    catalogModal: false,
+    grid: false,
+    pluginConfigModal: false,
+    publishing: false,
+    showGlobalConfig: false, // cookies.get("ediphy_visitor"),
+    showStyleConfig: false,
+    blockDrag: false,
+    showFileUpload: false,
+    fileUploadTab: 0,
+    showExitModal: false,
+    showTour: false,
+    showHelpButton: false,
+    showExportModal: false,
+    fileModalResult: { id: undefined, value: undefined },
+};

@@ -1,6 +1,5 @@
 let webpack = require('webpack');
 
-let path = require('path');
 let ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const marked = require("marked");
 const renderer = new marked.Renderer();
@@ -20,8 +19,8 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['es2015'],
-                        plugins: [require('babel-plugin-transform-object-rest-spread')],
+                        presets: ['@babel/env'],
+                        plugins: [require('@babel/plugin-proposal-object-rest-spread')],
                     },
                 },
             },
@@ -31,7 +30,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['es2015', 'react'],
+                        presets: ['@babel/env', '@babel/preset-react'],
                     },
                 },
             },

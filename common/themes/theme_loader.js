@@ -5,7 +5,7 @@ import { translatePxToEm } from "./cssParser";
 export function generateThemes() {
     let THEMES = {};
     let CONFIG = require('../../core/config');
-    CONFIG.default.themeList.map((theme, index) => {
+    CONFIG.default.themeList.map((theme) => {
         THEMES[theme] = require(`./definitions/${theme}/${theme}`).DEFINITION;
     });
 
@@ -66,7 +66,7 @@ export function getThemeFont(theme = 'default') {
 }
 
 export function sanitizeThemeToolbar(toolbar, styleConfig = {}) {
-    let theme = !toolbar || !toolbar.theme ? (styleConfig && styleConfig.theme ? styleConfig.theme : 'default') : toolbar.theme;
+    let theme = !toolbar || !toolbar.theme ? (styleConfig?.theme ?? 'default') : toolbar.theme;
 
     return {
         ...toolbar,

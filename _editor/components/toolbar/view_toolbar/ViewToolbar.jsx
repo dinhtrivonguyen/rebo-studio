@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import Ediphy from "../../../../core/editor/main";
 
 import { isCanvasElement, isPage, isSection, isSlide } from "../../../../common/utils";
-import { renderAccordion } from "../../../../core/editor/accordion_provider";
+import { renderAccordion } from "../../../../core/editor/accordionProvider";
 import { getThemes, sanitizeThemeToolbar } from "../../../../common/themes/theme_loader";
 
 import './_viewToolbar.scss';
@@ -32,7 +32,7 @@ class ViewToolbar extends Component {
                         __name: i18n.t("general"),
                         icon: 'settings',
                         buttons: {
-                            navitem_name: {
+                            viewName: {
                                 __name: i18n.t('NavItem_name'),
                                 type: 'text',
                                 value: viewToolbar.viewName,
@@ -43,33 +43,33 @@ class ViewToolbar extends Component {
                         __name: i18n.t('Header'),
                         icon: 'format_color_text',
                         buttons: {
-                            display_title: {
+                            courseTitle: {
                                 __name: i18n.t('course_title'),
                                 type: 'checkbox',
                                 checked: viewToolbar.courseTitle && viewToolbar.courseTitle !== 'hidden',
                             },
-                            display_pagetitle: {
+                            documentTitle: {
                                 __name: i18n.t('Title') + doc_type,
                                 type: 'checkbox',
                                 checked: viewToolbar.documentTitle && viewToolbar.documentTitle !== 'hidden',
                             },
-                            pagetitle_name: {
+                            documentTitleContent: {
                                 __name: "custom_title",
                                 type: 'conditionalText',
-                                associatedKey: 'display_pagetitle',
+                                associatedKey: 'documentTitle',
                                 display: false,
                                 placeholder: viewToolbar.viewName,
                                 value: viewToolbar.documentTitleContent,
                             },
-                            display_pagesubtitle: {
+                            documentSubtitle: {
                                 __name: i18n.t('subtitle'),
                                 type: 'checkbox',
                                 checked: viewToolbar.documentSubtitle && viewToolbar.documentSubtitle !== 'hidden',
                             },
-                            pagesubtitle_name: {
+                            documentSubtitleContent: {
                                 __name: "custom_subtitle",
                                 type: 'conditionalText',
-                                associatedKey: 'display_pagesubtitle',
+                                associatedKey: 'documentSubtitle',
                                 display: false,
                                 value: viewToolbar.documentSubtitleContent,
                             },
@@ -122,20 +122,20 @@ class ViewToolbar extends Component {
         };
 
         if (!isContainedView && controls && controls.main && controls.main.accordions.__header && controls.main.accordions.__header.buttons) {
-            controls.main.accordions.__header.buttons.display_breadcrumb = {
+            controls.main.accordions.__header.buttons.breadcrumb = {
                 __name: i18n.t('Breadcrumb'),
                 type: 'checkbox',
                 checked: viewToolbar.breadcrumb !== 'hidden',
             };
-            controls.main.accordions.__header.buttons.display_pagenumber = {
+            controls.main.accordions.__header.buttons.numPage = {
                 __name: doc_type + " " + i18n.t('pagenumber'),
                 type: 'checkbox',
                 checked: viewToolbar.numPage !== 'hidden',
             };
-            controls.main.accordions.__header.buttons.pagenumber_name = {
+            controls.main.accordions.__header.buttons.numPageContent = {
                 __name: "custom_pagenum",
                 type: 'conditionalText',
-                associatedKey: 'display_pagenumber',
+                associatedKey: 'numPage',
                 value: viewToolbar.numPageContent,
                 display: false,
 

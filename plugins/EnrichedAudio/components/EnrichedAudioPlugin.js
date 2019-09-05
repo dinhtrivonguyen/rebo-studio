@@ -1,9 +1,5 @@
 import React from 'react';
 import { convertHMStoSeconds, pad, setRgbaAlpha } from '../../../common/common_tools';
-
-import { findDOMNode } from 'react-dom';
-// import ReactAudioPlayer from 'react-audio-player';
-import WaveSurfer from 'wavesurfer.js';
 import ReactWavesurfer from 'react-wavesurfer';
 import Mark from '../../../common/components/mark/Mark';
 /* eslint-disable react/prop-types */
@@ -142,7 +138,7 @@ export default class BasicAudioPlugin extends React.Component {
             height: this.props.state.waves ? 128 : 0,
         };
 
-            /* Podemos pasar una devolución de llamada en los refs*/
+        /* Podemos pasar una devolución de llamada en los refs*/
         let marks = this.props.props.marks || {};
         let markElements = Object.keys(marks).map((id) =>{
             let secondsValue = convertHMStoSeconds(marks[id].value);

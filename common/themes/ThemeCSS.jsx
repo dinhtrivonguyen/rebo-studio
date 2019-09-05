@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
-import { getThemeColors, getThemeFont, getThemeImages, THEMES, generateThemes } from './theme_loader';
+import { getThemeColors, getThemeFont, getThemeImages, THEMES } from './theme_loader';
 import loadFont from './font_loader';
 import { setRgbaAlpha } from "../common_tools";
 import { translatePxToEm } from "./cssParser";
@@ -12,7 +12,7 @@ export default class ThemeCSS extends React.Component {
         currentThemeCSS: '',
     };
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.loadCSS();
         let colors = this.props.toolbar && Object.keys(this.props.toolbar.colors).length ? this.props.toolbar.colors : THEMES[this.props.theme].colors;
         let font = this.props.toolbar && this.props.toolbar.font ? this.props.toolbar.font : this.props.styleConfig.font ? this.props.styleConfig.font : getThemeFont(this.props.toolbar.theme);
@@ -25,7 +25,7 @@ export default class ThemeCSS extends React.Component {
         loadFont(font);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         let selectedItemChanged = prevProps.toolbar.id !== this.props.toolbar.id;
         let styleConfigChanged = prevProps.styleConfig.theme !== this.props.styleConfig.theme || prevProps.styleConfig.font !== this.props.styleConfig.font || prevProps.styleConfig.color !== this.props.styleConfig.color;
 
@@ -90,7 +90,7 @@ export default class ThemeCSS extends React.Component {
                     this.getThemeCSS(this.props.theme);
                 });
             })
-            .catch(e => '');
+            .catch(()=> '');
     };
 
     processCSS = (css) => {
@@ -127,11 +127,12 @@ export default class ThemeCSS extends React.Component {
     updateCustomProperty = (property, newValue) => {
         if (this.props.isPreview) {
             let previewZone = document.getElementById("previewZone");
-            previewZone && previewZone.style.setProperty(property, newValue);
-
+            if(previewZone) {
+                previewZone.style.setProperty(property, newValue);
+            }
         } else if(this.props.fromPDF) {
             let canvas = document.getElementsByClassName(this.props.currentView);
-            canvas && canvas.item(0) && canvas.item(0).style.setProperty(property, newValue);
+            canvas?.item(0)?.style?.setProperty(property, newValue);
         } else {
             document.documentElement.style.setProperty(property, newValue);
         }

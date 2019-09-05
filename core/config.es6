@@ -1,5 +1,6 @@
 export default {
     // PATHS
+    version: "3",
     xml_path: "ediphy/add_xml",
     xml_fake_path: "exercises/ua2_ue10_ejer7.xml",
     exercise_render_template_iframe_src: "./exercises/index.html",
@@ -18,7 +19,7 @@ export default {
     search_vish_url: "https://vishub.org/apis/search/",
     // search_vish_url: "http://localhost:3000/apis/search/",
     upload_vish_url: "http://127.0.0.1:8081/upload",
-    profile_vish_url: (id)=>`http://localhost:3000/users/demo/all_resources.json`,
+    profile_vish_url: ()=>`http://localhost:3000/users/demo/all_resources.json`,
     // includeVishProfile: true,
     // OPTIONS
     external_providers: {
