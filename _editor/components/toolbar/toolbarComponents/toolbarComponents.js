@@ -10,15 +10,15 @@ import {
     Radio,
 } from "react-bootstrap";
 import ToggleSwitch from "@trendmicro/react-toggle-switch";
-import ColorPicker from "../../common/color-picker/ColorPicker";
-import { getColor, getCurrentColor, getThemeFont } from "../../../../common/themes/theme_loader";
+import ColorPicker from "../../common/colorPicker/ColorPicker";
+import { getColor, getCurrentColor, getThemeFont } from "../../../../common/themes/themeLoader";
 import i18n from "i18next";
-import FontPicker from "../../common/font-picker/FontPicker";
-import ThemePicker from "../../common/theme-picker/ThemePicker";
+import FontPicker from "../../common/fontPicker/FontPicker";
+import ThemePicker from "../../common/themePicker/ThemePicker";
 import { isSlide } from "../../../../common/utils";
-import ToolbarFileProvider from "../../external_provider/file_modal/APIProviders/common/ToolbarFileProvider";
+import ToolbarFileProvider from "../../externalProvider/fileModal/APIProviders/common/ToolbarFileProvider";
 import Select from "react-select";
-import RadioButtonFormGroup from "../radio_button_form_group/RadioButtonFormGroup";
+import RadioButtonFormGroup from "../radioButtonFormGroup/RadioButtonFormGroup";
 import React from "react";
 
 export const Checkbox = (button, onChange, props) => {
@@ -258,69 +258,6 @@ export const FancyRadio = (button, buttonKey, toolbar_props) => {
         );
     }
     return null;
-};
-
-export const BackgroundPicker = (button, props, toolbar_props, isURI, isColor, default_background, isSli, background_attr, background_attr_zoom, onChange) => {
-    const ImageDisplay = (options) => {
-        return (
-            <div key={'radioDislay'}>
-                {options.map((option, i) => {
-                    return (
-                        <Radio key={i + '_' + option}
-                            name={'image_display'}
-                            checked={background_attr === option}
-                            style={{ display: isColor ? "none" : "block" }}
-                            onChange={onChange} value={option}>
-                            {i18n.t(`background.${option}`)}
-                        </Radio>
-                    );
-                })}
-            </div>
-        );
-    };
-    const ImagePicker = (
-        <div key={'container_' + button.__name} style={{ display: 'block' }}>
-            <FormGroup key={button.__name} style={{ display: button.hide ? 'none' : 'block' }}>
-                <ToolbarFileProvider
-                    id={toolbar_props.navItemSelected}
-                    key={button.__name}
-                    formControlProps={{ ...props }}
-                    label={'URL'}
-                    value={(isURI || isColor || (props.value?.match && !props.value.match('http'))) ? '' : props.value.background}
-                    openModal={toolbar_props.handleModals.openFileModal}
-                    fileModalResult={toolbar_props.fileModalResult}
-                    buttontext={i18n.t('importFile.title')}
-                    onChange={onChange}
-                    accept={"image/*"}
-                />
-            </FormGroup>
-            {!isColor && ImageDisplay(['full', 'repeat', 'centered'])}
-        </div>
-    );
-    return (
-        <FormGroup key={button.__name} style={{ display: button.hide ? 'none' : 'block' }}>
-            <ControlLabel key={'label1_' + button.__name}>{i18n.t('background.background_color')}</ControlLabel>
-            <ColorPicker
-                key={'cpicker_' + props.label}
-                value={(isColor && props.value) ? props.value.background : default_background}
-                onChange={onChange}
-            />
-            {isSli && ImagePicker}
-            {(!isColor && background_attr !== "full") && [
-                <ControlLabel key={'label_zoom'}>{i18n.t('background.background_zoom')}</ControlLabel>,
-                <span className="rangeOutput" style={{ marginTop: 0 }}>{background_attr_zoom}%</span>,
-                <input key="image_display_zoom" name='image_display_zoom' type='range' min={1} max={200}
-                    value={background_attr_zoom} style={{ display: isColor ? "none" : "block" }}
-                    onChange={onChange}/>,
-            ]}
-            <br key={'br'}/>
-            <ControlLabel key={'label_' + button.__name}>{i18n.t('background.reset_background')}</ControlLabel>
-            <Button key={'button_' + button.__name} value={default_background} onClick={onChange}
-                className={'toolbarButton'}>
-                <div key={props.label}>{i18n.t('background.reset_background')}</div>
-            </Button>
-        </FormGroup>
-    );
 };
 
 export const DefaultComponent = (button, props, onChange = undefined) => {
