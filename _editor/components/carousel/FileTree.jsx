@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import Sortly, { findDescendants, convert } from 'react-sortly';
 import update from 'immutability-helper';
 
-import ItemRenderer from './ItemRenderer';
+import CarouselItemRenderer from './CarouselItemRenderer';
 import { DragDropContext } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import i18n from "i18next";
-import { isSlide } from "../../../common/utils";
-import EditorIndexTitle from "./editorIndexTitle/EditorIndexTitle";
 import ContainedViewsList from "./ContainedViewsList";
 import PropTypes from "prop-types";
 
@@ -18,7 +16,7 @@ class FileTree extends Component {
         showContainedViews: true,
     };
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps, nextState) {
         return (nextProps.navItems !== this.props.navItems
             || nextProps.navItemsIds !== this.props.navItemsIds
             || nextProps.viewToolbars !== this.props.viewToolbars
@@ -55,7 +53,7 @@ class FileTree extends Component {
     };
 
     ediphyNavItemsToSortlyItems = (edNavItems, edNavItemsId, edViewToolbars) => {
-        let edItems = edNavItemsId.map((item, i) => {
+        let edItems = edNavItemsId.map((item) => {
             return {
                 id: edNavItems[item].id,
                 name: edViewToolbars[item].viewName,
@@ -110,7 +108,7 @@ class FileTree extends Component {
         }
     };
 
-    renderItem = (props) => { return <ItemRenderer {...props}
+    renderItem = (props) => { return <CarouselItemRenderer {...props}
         onToggleCollapse={this.handleToggleCollapse}
         onIndexSelected = {this.props.onIndexSelected}
         onNavItemSelected={this.props.handleNavItems.onNavItemSelected}
@@ -131,7 +129,6 @@ class FileTree extends Component {
             return "calc(50%)";
         }
         return "calc(100% - 124px)";
-
     }
 
     render() {

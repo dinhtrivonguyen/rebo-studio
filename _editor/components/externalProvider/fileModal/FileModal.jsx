@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Row, Col, ListGroupItem, ListGroup } from 'react-bootstrap';
+import { Modal, Button, ListGroupItem, ListGroup } from 'react-bootstrap';
 import './_fileModal.scss';
 import '../_external.scss';
-import { isContainedView, isSortableContainer } from '../../../../common/utils';
+import { isContainedView } from '../../../../common/utils';
 import FileHandlers from './FileHandlers/FileHandlers';
 import APIProviders from './APIProviders/APIProviders';
 import PDFHandler from "./FileHandlers/PDFHandler";
@@ -145,7 +145,7 @@ class FileModal extends React.Component {
 
     /**
      * Selects menu left
-     * @param i
+     * @param menu
      */
     clickHandler = (menu) => {
         this.setState({ ...initialState, menu });
@@ -167,16 +167,6 @@ class FileModal extends React.Component {
         return isContainedView(this.props.containedViewSelected) ?
             this.props.containedViews[this.props.containedViewSelected] :
             (this.props.navItemSelected !== 0 ? this.props.navItems[this.props.navItemSelected] : null);
-    };
-
-    getIndex = (parent, container) => {
-        let newInd;
-        if(isSortableContainer(container)) {
-            let children = this.props.boxes[parent].sortableContainers[container].children;
-            newInd = children.indexOf(this.props.boxSelected) + 1;
-            newInd = newInd === 0 ? 1 : ((newInd === -1 || newInd >= children.length) ? (children.length) : newInd);
-        }
-        return newInd;
     };
 
     close = (fileModalResult) => {
@@ -266,10 +256,6 @@ FileModal.propTypes = {
      * Object containing all the boxes
      */
     boxes: PropTypes.object.isRequired,
-    /**
-     * Current selected box
-     */
-    boxSelected: PropTypes.any.isRequired,
     /**
      * Collection of callbacks for nav items handling
      */
