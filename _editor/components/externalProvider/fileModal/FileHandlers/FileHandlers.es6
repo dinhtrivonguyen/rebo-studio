@@ -1,13 +1,9 @@
-import React from 'react';
 import { createBox } from '../../../../../common/commonTools';
 import { ID_PREFIX_BOX, ID_PREFIX_SORTABLE_CONTAINER } from '../../../../../common/constants';
 import { randomPositionGenerator } from '../../../clipboard/clipboard.utils';
 import {
     isSlide,
     isBox,
-    isContainedView,
-    isPage,
-    isSortableBox,
     isDataURL,
     dataURItoBlob,
     isCanvasElement,
@@ -16,6 +12,7 @@ import {
 import i18n from 'i18next';
 import { importEdiphy, importExcursion } from '../APIProviders/providers/_edi';
 import './_ImportFile.scss';
+import _handlers from "../../../../handlers/_handlers";
 
 export const extensionHandlers = {
     'all': { label: i18n.t("vish_search_types.All"), value: '', icon: 'attach_file' },
@@ -42,8 +39,6 @@ export default function handlers(self) {
     let type = self.state.type;
     let page = self.currentPage();
     let { initialParams, isTargetSlide } = getInitialParams(self, page);
-    let currentPlugin = (self.props.fileModalResult && self.props.fileModalResult.id && self.props.pluginToolbars[self.props.fileModalResult.id]) ? self.props.pluginToolbars[self.props.fileModalResult.id].pluginId : null;
-    let apiPlugin = currentPlugin ? Ediphy.Plugins.get(currentPlugin) : undefined;
     let pluginsAllowed = Ediphy.Config.pluginFileMap[(type === '') ? 'all' : type] || [];
     let ext = extensionHandlers[(type === '') ? 'all' : type];
     let icon = ext ? ext.icon : 'attach_file';
@@ -64,7 +59,7 @@ export default function handlers(self) {
                             let xhr = new XMLHttpRequest(),
                                 fileReader = new FileReader();
                             fileReader.onload = (e)=>dataToState(e, self, type, initialParams, isTargetSlide, pluginName);
-                            fileReader.onerror = (e)=>{alert(i18n.t('error.generic'));};
+                            fileReader.onerror = ()=>{alert(i18n.t('error.generic'));};
                             if(isDataURL(self.state.element)) {
                                 fileReader.readAsBinaryString(dataURItoBlob(self.state.element));
                             } else {
@@ -83,7 +78,7 @@ export default function handlers(self) {
                             }
                         } else {
                             initialParams.initialState = { [key]: self.state.element };
-                            createBox(initialParams, pluginName, isTargetSlide, self.props.onBoxAdded, self.props.boxes);
+                            createBox(initialParams, pluginName, isTargetSlide, _handlers(self).onBoxAdded, self.props.boxes);
                             self.close();
                         }
 
@@ -166,13 +161,11 @@ export default function handlers(self) {
     };
 }
 function getInitialParams(self, page) {
-    let ids = {};
     let initialParams;
     let isTargetSlide = false;
 
     if (page) {
         let containerId = ID_PREFIX_SORTABLE_CONTAINER + Date.now();
-        let id = ID_PREFIX_BOX + Date.now();
         isTargetSlide = isSlide(page.type);
         let parent = isTargetSlide ? page.id : page.boxes[0];
         let row = 0;
@@ -188,7 +181,6 @@ function getInitialParams(self, page) {
             newInd = getIndex(parent, container, self.props);
         }
 
-        ids = { id, parent, container, row, col, page: page ? page.id : 0 };
         initialParams = {
             id: ID_PREFIX_BOX + Date.now(),
             parent: parent, //
@@ -212,7 +204,7 @@ function getInsertButtonTitle(allowedPluginKey) {
     return i18n.t('FileModal.FileHandlers.insert') + ' ' + i18n.t(`${allowedPluginKey}.PluginName`).toLowerCase();
 }
 
-function sanitizeInitialParams(initialParams, boxes) {
+/* function sanitizeInitialParams(initialParams, boxes) {
     let parent = initialParams.parent;
 
     if(isSortableBox(parent) || isPage(parent) || isContainedView(parent)) {
@@ -225,7 +217,7 @@ function sanitizeInitialParams(initialParams, boxes) {
     }
 
     return initialParams;
-}
+}*/
 function csvToState(csv) {
     let lines = csv.split("\n");
 
@@ -260,7 +252,6 @@ function jsonToState(json) {
 }
 
 function validateJson(json) {
-    let data = {};
     if(json.length === 0) {
         return false;
     }

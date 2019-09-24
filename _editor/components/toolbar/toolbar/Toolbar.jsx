@@ -10,39 +10,39 @@ import ViewToolbar from '../viewToolbar/ViewToolbar';
 
 import { isCanvasElement, isSlide } from "../../../../common/utils";
 import { changeBackground } from "../../../../common/actions";
+import _handlers from "../../../handlers/_handlers";
 
 class Toolbar extends Component {
 
     state = { open: false };
+    h = _handlers(this);
 
     render() {
-        let exercises = {};
+
+        const { box, boxSelected, carouselShow, exercises, navItemsById, navItemSelected, pluginToolbarsById, top } = this.props;
+
         let toolbar = null;
         let title = "";
-        let noBoxSelected = this.props.boxSelected === -1 && isCanvasElement(this.props.navItemSelected, Ediphy.Config.sections_have_content);
+        let noBoxSelected = boxSelected === -1 && isCanvasElement(navItemSelected, Ediphy.Config.sections_have_content);
         let noPageSelected = false;
-        if (!this.props.exercises[this.props.navItemSelected]) {
+        if (!exercises[navItemSelected]) {
             noPageSelected = true;
         } else if(noBoxSelected) {
-            exercises = this.props.exercises[this.props.navItemSelected];
             toolbar = <ViewToolbar {...this.props}
                 onBackgroundChanged={this.onBackgroundChanged}
                 open={this.state.open}
-                exercises={exercises}
-                onScoreConfig={(id, button, value, page) => {this.props.onScoreConfig(id, button, value, this.props.navItemSelected);}}
-                toggleToolbar={()=>this.toggleToolbar()} />;
+                exercises={exercises[navItemSelected]}
+                toggleToolbar={this.toggleToolbar} />;
 
-            title = ((isSlide(this.props.navItems[this.props.navItemSelected].type) ? (this.props.navItems[this.props.navItemSelected].customSize === 0 ? i18n.t('slide') : "PDF") : i18n.t('page')) || "");
+            title = ((isSlide(navItemsById[navItemSelected].type) ? (navItemsById[navItemSelected].customSize === 0 ? i18n.t('slide') : "PDF") : i18n.t('page')) || "");
         } else {
-            exercises = this.props.exercises[this.props.navItemSelected].exercises[this.props.boxSelected];
             toolbar = <PluginToolbar {...this.props}
                 onBackgroundChanged={this.onBackgroundChanged}
                 open={this.state.open}
-                exercises={exercises}
-                onScoreConfig={(id, button, value, page) => {this.props.onScoreConfig(id, button, value, this.props.navItemSelected);}}
+                exercises={exercises[navItemSelected].exercises[boxSelected]}
                 toggleToolbar={this.toggleToolbar}
-                openConfigModal={this.props.handleModals.openConfigModal} />;
-            let tb = this.props.pluginToolbars[this.props.box.id];
+                openConfigModal={this.h.openConfigModal} />;
+            let tb = pluginToolbarsById[box.id];
             let apiPlugin = Ediphy.Plugins.get(tb.pluginId);
             let config = apiPlugin ? apiPlugin.getConfig() : {};
             title = (config.displayName || "");
@@ -53,7 +53,7 @@ class Toolbar extends Component {
                 className="wrapper"
                 style={{
                     right: '0px',
-                    top: this.props.top,
+                    top: top,
                 }}>
                 <div className="pestana" id="toolbarFlap"
                     onClick={this.toggleToolbar}/>
@@ -70,7 +70,7 @@ class Toolbar extends Component {
                             </Tooltip>
                         }>
                         <div onClick={this.toggleToolbar}
-                            style={{ display: this.props.carouselShow ? 'block' : 'block' }}
+                            style={{ display: carouselShow ? 'block' : 'block' }}
                             className={open ? 'carouselListTitle toolbarSpread' : 'carouselListTitle toolbarHide'}>
                             <div className="toolbarTitle">
                                 <i id="wheel" className="material-icons">settings</i>
@@ -93,29 +93,27 @@ class Toolbar extends Component {
         );
     }
 
-    toggleToolbar = () => {
-        this.setState({ open: !this.state.open });
-    };
-
     onBackgroundChanged = (id, background) => this.props.dispatch(changeBackground(id, background));
-
+    toggleToolbar = () => this.setState({ open: !this.state.open });
 }
 
 function mapStateToProps(state) {
     return {
-        pluginToolbars: state.undoGroup.present.pluginToolbarsById,
-        viewToolbars: state.undoGroup.present.viewToolbarsById,
+        pluginToolbarsById: state.undoGroup.present.pluginToolbarsById,
+        viewToolbarsById: state.undoGroup.present.viewToolbarsById,
         box: state.undoGroup.present.boxesById[state.undoGroup.present.boxSelected],
+        boxes: state.undoGroup.present.boxesById,
         boxSelected: state.undoGroup.present.boxSelected,
-        containedViews: state.undoGroup.present.containedViewsById,
+        containedViewsById: state.undoGroup.present.containedViewsById,
         containedViewSelected: state.undoGroup.present.containedViewSelected,
         navItemSelected: state.undoGroup.present.containedViewSelected !== 0 ? state.undoGroup.present.containedViewSelected : state.undoGroup.present.navItemSelected,
-        navItems: state.undoGroup.present.containedViewSelected !== 0 ? state.undoGroup.present.containedViewsById : state.undoGroup.present.navItemsById,
+        navItemsById: state.undoGroup.present.containedViewSelected !== 0 ? state.undoGroup.present.containedViewsById : state.undoGroup.present.navItemsById,
         carouselShow: state.reactUI.carouselShow,
         isBusy: state.undoGroup.present.isBusy,
         marks: state.undoGroup.present.marksById,
         exercises: state.undoGroup.present.exercises,
         fileModalResult: state.reactUI.fileModalResult,
+        reactUI: state.reactUI,
     };
 }
 
@@ -131,17 +129,9 @@ Toolbar.propTypes = {
      */
     dispatch: PropTypes.func,
     /**
-     * Collection of callbacks for modals handling
-     */
-    handleModals: PropTypes.object.isRequired,
-    /**
      * Current selected view (by ID)
      */
     navItemSelected: PropTypes.any,
-    /**
-     * Function for configuring the scoring settings of a page or exercise
-     */
-    onScoreConfig: PropTypes.func,
     /**
      * View toolbars
      */
@@ -149,7 +139,7 @@ Toolbar.propTypes = {
     /**
      * Plugin toolbars
      */
-    pluginToolbars: PropTypes.object,
+    pluginToolbarsById: PropTypes.object,
     /**
      * Object containing the current box
      */
@@ -169,5 +159,9 @@ Toolbar.propTypes = {
     /**
      * Object containing all views (by id)
      */
-    navItems: PropTypes.object.isRequired,
+    navItemsById: PropTypes.object.isRequired,
+    /**
+     * Object containing all contained views (by id)
+     */
+    containedViewsById: PropTypes.object.isRequired,
 };
