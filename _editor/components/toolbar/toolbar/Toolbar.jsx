@@ -11,6 +11,8 @@ import ViewToolbar from '../viewToolbar/ViewToolbar';
 import { isCanvasElement, isSlide } from "../../../../common/utils";
 import { changeBackground } from "../../../../common/actions";
 import _handlers from "../../../handlers/_handlers";
+import ErrorBoundary from "../../../containers/ErrorBoundary";
+import { Flap, Wrapper } from "../Styles";
 
 class Toolbar extends Component {
 
@@ -49,50 +51,45 @@ class Toolbar extends Component {
         }
         let open = (!noPageSelected && this.state.open);
         return (
-            <div id="wrap"
-                className="wrapper"
-                style={{
-                    right: '0px',
-                    top: top,
-                }}>
-                <div className="pestana" id="toolbarFlap"
-                    onClick={this.toggleToolbar}/>
-                <div id="tools"
-                    style={{
-                        width: open ? '250px' : '40px',
-                    }}
-                    className={open ? 'toolbox toolsSpread' : 'toolbox'}>
-                    <OverlayTrigger placement="left"
-                        overlay={
-                            <Tooltip className={open ? 'hidden' : ''}
-                                id="tooltip_props">
-                                {i18n.t('Properties')}
-                            </Tooltip>
-                        }>
-                        <div onClick={this.toggleToolbar}
-                            style={{ display: carouselShow ? 'block' : 'block' }}
-                            className={open ? 'carouselListTitle toolbarSpread' : 'carouselListTitle toolbarHide'}>
-                            <div className="toolbarTitle">
-                                <i id="wheel" className="material-icons">settings</i>
-                                <span className="toolbarTitletxt">
+            <Wrapper top={top} >
+                <ErrorBoundary context={'toolbar'}>
+                    <Flap onClick={this.toggleToolbar}/>
+                    <div id="tools"
+                        style={{
+                            width: open ? '250px' : '40px',
+                        }}
+                        className={open ? 'toolbox toolsSpread' : 'toolbox'}>
+                        <OverlayTrigger placement="left"
+                            overlay={
+                                <Tooltip className={open ? 'hidden' : ''}
+                                    id="tooltip_props">
                                     {i18n.t('Properties')}
-                                </span>
+                                </Tooltip>
+                            }>
+                            <div onClick={this.toggleToolbar}
+                                style={{ display: carouselShow ? 'block' : 'block' }}
+                                className={open ? 'carouselListTitle toolbarSpread' : 'carouselListTitle toolbarHide'}>
+                                <div className="toolbarTitle">
+                                    <i id="wheel" className="material-icons">settings</i>
+                                    <span className="toolbarTitletxt">
+                                        {i18n.t('Properties')}
+                                    </span>
+                                </div>
+                                <div className="pluginTitleInToolbar">
+                                    {title}
+                                </div>
                             </div>
-                            <div className="pluginTitleInToolbar">
-                                {title}
+                        </OverlayTrigger>
+                        <div id="insidetools" style={{ display: open ? 'block' : 'none' }}>
+                            <div className="toolbarTabs">
+                                {toolbar}
                             </div>
-                        </div>
-                    </OverlayTrigger>
-                    <div id="insidetools" style={{ display: open ? 'block' : 'none' }}>
-                        <div className="toolbarTabs">
-                            {toolbar}
                         </div>
                     </div>
-                </div>
-            </div>
+                </ErrorBoundary>
+            </Wrapper>
         );
     }
-
     onBackgroundChanged = (id, background) => this.props.dispatch(changeBackground(id, background));
     toggleToolbar = () => this.setState({ open: !this.state.open });
 }

@@ -1,19 +1,24 @@
 import React from 'react';
 import interact from 'interactjs';
 import ReactDOM from 'react-dom';
+import { BasicImage, ImagePlugin } from "./Styles";
 
 /* eslint-disable react/prop-types */
 
 export default class Image extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { error: false };
-    }
+    state = { error: false };
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         if(nextProps.state.url !== this.props.state.url) {
             this.setState({ error: false });
         }
+    }
+
+    onWheel = e => {
+        const delta = Math.sign(e.deltaY);
+        const scale = this.props.state.scale || 1;
+        this.props.update('scale', Math.round(10 * Math.min(20, Math.max(0, scale - delta / 10))) / 10);
+
     }
 
     render() {
@@ -38,11 +43,8 @@ export default class Image extends React.Component {
         source = source.replace(')', '');
         source = isCustom ? url : source;
 
-        return <div style={{ height: "100%", width: "100%" }} className="draggableImage" ref="draggableImage" onWheel={(e) => {
-            const delta = Math.sign(e.deltaY);
-            props.update('scale', Math.round(10 * Math.min(20, Math.max(0, scale - delta / 10))) / 10);
-        }}>
-            <img ref ="img" id={props.id + "-image"}
+        return <ImagePlugin ref="draggableImage" onWheel={this.onWheel}>
+            <BasicImage ref ="img" id={props.id + "-image"}
                 className="basicImageClass"
                 style={{ ...customImage, width: state.allowDeformed ? "100%" : "100%", height: state.allowDeformed ? "" : "auto", transform, WebkitTransform: transform, MozTransform: transform }}
                 src={source}
@@ -55,7 +57,7 @@ export default class Image extends React.Component {
             <div className="dropableRichZone" style={{ height: "100%", width: "100%", position: 'absolute', top: 0, left: 0 }} >
                 {markElements}
             </div>
-        </div>;
+        </ImagePlugin>;
     }
 
     componentDidMount() {
@@ -83,9 +85,9 @@ export default class Image extends React.Component {
                     original.setAttribute('data-y', y);
                     clone.style.position = 'absolute';
                     clone.style.webkitTransform =
-                    clone.style.MozTransform =
-                      clone.style.msTransform =
-                        clone.style.OTransform = 'translate(' + (x) + 'px, ' + (y) + 'px) scale(' + scale + ')';
+                        clone.style.MozTransform =
+                            clone.style.msTransform =
+                                clone.style.OTransform = 'translate(' + (x) + 'px, ' + (y) + 'px) scale(' + scale + ')';
                     parent.appendChild(clone);
                     original.style.opacity = 0;
                 },
@@ -97,9 +99,9 @@ export default class Image extends React.Component {
                     let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
                     target.style.webkitTransform =
-                    target.style.MozTransform =
-                      target.style.msTransform =
-                        target.style.OTransform = 'translate(' + (x) + 'px, ' + (y) + 'px) scale(' + scale + ')';
+                        target.style.MozTransform =
+                            target.style.msTransform =
+                                target.style.OTransform = 'translate(' + (x) + 'px, ' + (y) + 'px) scale(' + scale + ')';
                     target.style.zIndex = '9999';
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);

@@ -6,6 +6,7 @@ import CarouselHeader from '../carouselHeader/CarouselHeader';
 import FileTree from "../FileTree";
 
 import { connect } from "react-redux";
+import ErrorBoundary from "../../../containers/ErrorBoundary";
 
 /**
  * Index wrapper container
@@ -25,9 +26,11 @@ class EditorCarousel extends Component
                     maxWidth: carouselShow ? (carouselFull ? '100%' : '212px') : '80px',
                     overflowX: carouselFull ? 'hidden' : '',
                 }}>
-                <CarouselHeader/>
-                <FileTree/>
-                <CarouselButtons/>
+                <ErrorBoundary context={'carousel'}>
+                    <CarouselHeader/>
+                    <FileTree/>
+                    <CarouselButtons/>
+                </ErrorBoundary>
             </div>
         );
     }

@@ -27,7 +27,7 @@
     "dev-doc": "cat ediphy && babel-node --presets es2015  doc/scripts/reactdocgenmd.js & node doc/scripts/importComponents.js &  webpack --config webpack.noserver.js & node doc/scripts/bringtodist.js & webpack-dev-server --open --progress --colors --config doc/webpack.doc.dev.js",
     "dev-only-doc": "cat ediphy && webpack-dev-server --open --progress --colors --config doc/webpack.doc.dev.js",
     "add-all": "git add .",
-    "create-plugin": "babel-node plugins/create_plugin.js ",
+    "create-plugin": "babel-node plugins/createPlugin.js ",
     "create-theme": "babel-node common/themes/createTheme.js "
   },
   "pre-commit": [
@@ -253,6 +253,7 @@
     "screenfull": "^3.3.2",
     "scroll-into-view-if-needed": "^1.4.0",
     "stl-viewer": "^0.7.0",
+    "styled-components": "^4.4.0",
     "typeface-source-sans-pro": "0.0.44",
     "typeface-ubuntu": "0.0.44",
     "universal-cookie": "^2.1.5",
