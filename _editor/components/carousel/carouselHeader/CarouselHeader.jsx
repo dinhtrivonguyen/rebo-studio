@@ -4,9 +4,9 @@ import { connect } from "react-redux";
 
 import EditorIndexTitle from '../editorIndexTitle/EditorIndexTitle';
 import i18n from 'i18next';
-import './_carouselHeader.scss';
 import handleCanvas from "../../../handlers/handleCanvas";
 import { updateUI } from "../../../../common/actions";
+import { CarouselTitleContainer, CarouselListTitle } from "./Styles";
 
 /**
  * Carousel's header, containing the course's title and the expand/collapse buttons
@@ -24,35 +24,33 @@ class CarouselHeader extends Component {
         let widthScroll = Math.max(courseTitle.length / 11 * 100, 100);
         // let widthScroll = this.props.courseTitle.length / 10 * 100;
         return (
-            <div style={{
+            <CarouselListTitle style={{
                 textAlign: this.props.carouselShow ? 'left' : 'center',
                 flexFlow: this.props.carouselShow ? 'row' : 'column',
-                display: 'flex',
             }}
-            className={'carouselListTitle ' + (this.props.carouselShow ? 'toolbarSpread' : 'toolbarHide')}>
-                <button className="btnToggleCarousel" onClick={() => this.onToggleWidth()}>
-                    <i style={{ fontSize: this.props.carouselShow ? '16px' : '28px' }} className="material-icons">format_list_numbered</i>
+            carouselShow={this.props.carouselShow}>
+                <button className="btnToggleCarousel" style={{ display: 'flex', alignItems: 'center' }} onClick={() => this.onToggleWidth()}>
+                    <i style={{ fontSize: '24px', marginLeft: '4px' }} className="material-icons">{this.props.carouselShow ? 'keyboard_arrow_left' : 'menu'}</i>
                 </button>
-                {!this.props.carouselShow ? <br/> : null}
+                {!this.props.carouselShow ? <br /> : null}
 
-                <div className="navBarSpace" style={{ display: (this.props.carouselShow ? 'block' : 'none') }}>
+                <CarouselTitleContainer show={this.props.carouselShow}>
                     <EditorIndexTitle
                         id="coursetit"
                         scrollW={widthScroll}
-                        className="tituloCurso"
                         title={this.props.courseTitle}
                         courseTitle
                         onNameChanged={this.hC.onTitleChanged}
                     />
-                </div>
+                </CarouselTitleContainer>
 
                 <div className="clear" />
-            </div>
+            </CarouselListTitle>
         );
     }
 
     onToggleWidth = () => {
-        if(this.props.carouselShow) {
+        if (this.props.carouselShow) {
             this.props.dispatch(updateUI({
                 carouselShow: false,
                 carouselFull: false,

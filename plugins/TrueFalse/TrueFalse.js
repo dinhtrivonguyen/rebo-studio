@@ -14,6 +14,7 @@ import {
     TrueFalsePlugin,
 } from "./Styles";
 import { QuestionRow, RadioStyleDangerous } from "../../sass/exercises";
+import { PRIMARY_BLUE } from "../../sass/general/constants";
 /* eslint-disable react/prop-types */
 
 export const TrueFalse = () => ({
@@ -68,9 +69,9 @@ export const TrueFalse = () => ({
         quizColor: 'rgba(0, 173, 156, 1)',
     }),
     getRenderTemplate: (state, props = {}) => {
-        let quizColor = state.quizColor.color || 'rgba(0, 173, 156, 1)';
+        let quizColor = state.quizColor.color || PRIMARY_BLUE;
         let customStyle = state.quizColor.custom ? generateCustomColors(quizColor, 1, true) : null;
-
+        console.log(customStyle);
         const clickHandler = (ind, val) => {
             if(props.exercises?.correctAnswer instanceof Array) {
                 let newAnswer = [...Array(state.nBoxes)].map((a, i) => (ind === i) ? val : props.exercises.correctAnswer[i]);

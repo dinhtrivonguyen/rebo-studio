@@ -23,25 +23,28 @@ export const DEFINITION = {
     font: 'Libre Franklin',
     background: {
         f16_9: [
-            'url(./themes/upm/background_images/upm_169.jpg)',
-            'url(./themes/upm/background_images/upm_169_12.jpg)',
-            'url(./themes/upm/background_images/upm_169_2.jpg)',
+            'upm_169.jpg',
+            'upm_169_12.jpg',
+            'upm_169_2.jpg',
 
         ],
         f4_3: [
-            'url(./themes/upm/background_images/upm_43.jpg)',
-            'url(./themes/upm/background_images/upm_43_12.jpg)',
-            'url(./themes/upm/background_images/upm_43_2.jpg)',
+            'upm_43.jpg',
+            'upm_43_12.jpg',
+            'upm_43_2.jpg',
         ],
     },
     colors: {
         themeColor1: '#D2D2D2',
         themeColor2: '#DBE0EF',
-        themeColor3: '#FFFFFF',
-        themeColor4: '#FFFFFF',
+        themeColor3: '#898989',
+        themeColor4: '#898989',
         themeColor5: '#DBE0EF',
         themeColor6: '#0F3D59',
         themeColor7: '#0F3D59',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#616161',
+        themeColor10: '#ffffff',
     },
     images: {
         template1: { left: 'left.jpg' },

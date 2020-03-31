@@ -17,10 +17,10 @@ import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css';
 
 // Styles
 import 'react-select/dist/react-select.css';
-import './_globalConfig.scss';
 import { getThemeFont } from "../../../../common/themes/themeLoader";
 import ThemePreview from "../../../../common/themes/ThemePreview";
 import TransitionPicker from "../../common/transitionPicker/TransitionPicker";
+import { EDModal } from "../../../../sass/general/EDModal";
 
 /**
  * Global course configuration modal
@@ -40,7 +40,7 @@ class StyleConfig extends Component {
     render() {
         return (
             <div>
-                <Modal className="pageModal"
+                <EDModal
                     show={this.props.show}
                     backdrop={'static'} bsSize="large"
                     // aria-labelledby="contained-modal-title-lg"
@@ -78,7 +78,21 @@ class StyleConfig extends Component {
                     <Modal.Body className="gcModalBody" style={{ overFlowY: 'auto' }}>
                         <Grid>
                             <Row>
-                                <Col xs={12} md={6} lg={6}><br/>
+                                <Col className={'col-md-push-6'} xs={12} md={6} lg={6}><br/>
+                                    <div className={"Preview"}>
+                                        <h4>{i18n.t("Style.preview")}</h4>
+                                        <ThemePreview
+                                            styleConfig={ this.state}
+                                            theme={ this.state.modifiedState ? this.state.theme : this.props.styleConfig.theme }
+                                        />
+                                    </div>
+                                    <h4>{i18n.t("Style.transitions")}</h4>
+                                    <FormGroup>
+                                        <TransitionPicker
+                                            onClick={this.handleTransitionChange}/>
+                                    </FormGroup>
+                                </Col>
+                                <Col className={'col-md-pull-6'} xs={12} md={6} lg={6}><br/>
                                     <h4>{i18n.t("Style.appearance")}</h4>
                                     <FormGroup>
                                         <ControlLabel>{i18n.t("Style.theme")}</ControlLabel>
@@ -115,21 +129,7 @@ class StyleConfig extends Component {
                                         }}>{i18n.t("Style.restore_theme_setup")}</Button>
                                     </FormGroup>
                                 </Col>
-                                <Col xs={12} md={6} lg={6}><br/>
-                                    <div className={"Preview"}>
-                                        <h4>{i18n.t("Style.preview")}</h4>
-                                        <ThemePreview
-                                            styleConfig={ this.state}
-                                            theme={ this.state.modifiedState ? this.state.theme : this.props.styleConfig.theme }
-                                        />
 
-                                    </div>
-                                    <h4>{i18n.t("Style.transitions")}</h4>
-                                    <FormGroup>
-                                        <TransitionPicker
-                                            onClick={this.handleTransitionChange}/>
-                                    </FormGroup>
-                                </Col>
                             </Row>
                         </Grid>
                     </Modal.Body>
@@ -143,7 +143,7 @@ class StyleConfig extends Component {
                             {i18n.t("globalConfig.Accept")}
                         </Button>{'   '}
                     </Modal.Footer>
-                </Modal>
+                </EDModal>
             </div>
         );
     }
@@ -186,7 +186,7 @@ class StyleConfig extends Component {
             modifiedState: true });
     };
 
-    handleColorChange = e => this.setState({ font: e.family, modifiedState: true });
+    handleColorChange = e => this.setState({ color: e.color, modifiedState: true });
     handleFontChange = e => this.setState({ font: e.family, modifiedState: true });
     handleTransitionChange = (index) => this.setState({ transition: index });
 

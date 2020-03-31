@@ -1,6 +1,6 @@
 export default {
     // PATHS
-    version: "3",
+    version: "4",
     xml_path: "ediphy/add_xml",
     xml_fake_path: "exercises/ua2_ue10_ejer7.xml",
     exercise_render_template_iframe_src: "./exercises/index.html",
@@ -23,6 +23,11 @@ export default {
     includeVishProfile: true,
     defaultAspectRatio: 4 / 3,
     // OPTIONS
+    transitions_url: "/transitions/",
+    themes_url: "/assets/themes/",
+    themes_absolute_url: "/assets/themes/",
+    theme_css_url: '/assets/theme.css',
+    theme_css_absolute_url: '/assets/theme.css',
     externalProviders: {
         enable_search: true,
         enable_external_upload: true,

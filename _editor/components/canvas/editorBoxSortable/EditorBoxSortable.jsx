@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { Button, OverlayTrigger, Popover, Tooltip, Overlay } from 'react-bootstrap';
+import { OverlayTrigger, Popover, Tooltip, Overlay } from 'react-bootstrap';
 import interact from 'interactjs';
 import Alert from './../../common/alert/Alert';
 import EditorBox from '../editorBox/EditorBox';
@@ -10,10 +10,17 @@ import { isSortableBox } from '../../../../common/utils';
 import Ediphy from '../../../../core/editor/main';
 import i18n from 'i18next';
 
-import './_editorBoxSortable.scss';
 import { instanceExists, releaseClick, findBox, createBox } from '../../../../common/commonTools';
 import { connect } from "react-redux";
 import _handlers from "../../../handlers/_handlers";
+import { PopoverButton } from '../../carousel/Styles';
+import {
+    Container, DeleteButton,
+    DnDZone,
+    EditorBoxSortableContainer,
+    SortableContainerBox,
+    SwapButton,
+} from "./Styles";
 
 /**
  * EditorBoxSortable Component
@@ -36,22 +43,22 @@ class EditorBoxSortable extends Component {
 
         let box = this.props.boxesById[this.props.id];
         return (
-            <div className="editorBoxSortable"
+            <Container
                 onMouseDown={e => {
                     if (e.target === e.currentTarget || e.target.classList.contains('colDist-j')) {
-                        if(box.children.length !== 0) {
+                        if (box.children.length !== 0) {
                             this.h.onBoxSelected(this.props.id);
                         }
                     }
                     e.stopPropagation();
                 }}>
-                <div ref="sortableContainer"
+                <SortableContainerBox ref="sortableContainer"
                     className={(this.props.id === this.props.boxSelected && box.children.length > 0) ? ' selectedBox sortableContainerBox' : ' sortableContainerBox'}
                     style={{ position: 'relative', boxSizing: 'border-box' }}>
                     {this.state.alert}
-                    {box.children.map((idContainer, index)=> {
+                    {box.children.map((idContainer, index) => {
                         let container = box.sortableContainers[idContainer];
-                        return (<div key={'sortableContainer-' + index}
+                        return (<EditorBoxSortableContainer key={'sortableContainer-' + index}
                             className={"editorBoxSortableContainer pos_relative " + container.style.className}
                             data-id={idContainer}
                             id={idContainer}
@@ -72,7 +79,7 @@ class EditorBoxSortable extends Component {
                                                     className={"colDist-j width100 pos_relative rowNum" + j}
                                                     style={{ height: row + "%", minHeight: parseInt(100 / (container.cols[i].length), 10) + 'px' }}
                                                     ref={e => {
-                                                        if(e !== null) {
+                                                        if (e !== null) {
                                                             this.configureDropZone(
                                                                 ReactDOM.findDOMNode(e),
                                                                 "cell",
@@ -91,15 +98,14 @@ class EditorBoxSortable extends Component {
                                                                 key={'box-' + idBox}
                                                                 page={this.props.page}
                                                                 pageType={this.props.pageType}
-                                                                themeColors={this.props.themeColors}/>);
-
+                                                                themeColors={this.props.themeColors} />);
                                                         } else if (ind === container.children.length - 1) {
-                                                            return (<span key={ind}><br/><br/></span>);
+                                                            return (<span key={ind}><br /><br /></span>);
                                                         }
 
                                                         return null;
                                                     })}
-                                                    {container.children.length === 0 ? (<div key={-1} style={{ height: '46px' }}/>) : null }
+                                                    {container.children.length === 0 ? (<div key={-1} style={{ height: '46px' }} />) : null}
                                                 </div>);
                                             })}
                                         </div>);
@@ -111,24 +117,24 @@ class EditorBoxSortable extends Component {
 
                             <div className="sortableMenu width100 over_hidden">
                                 <div className="iconsOverBar float_left pos_absolute bottom0">
-                                    { box.children.length > 1 ? <OverlayTrigger placement="top" overlay={
+                                    {box.children.length > 1 ? <OverlayTrigger placement="top" overlay={
                                         <Tooltip id="deleteTooltip">{i18n.t('Reorder')}
                                         </Tooltip>}>
-                                        <i className="material-icons drag-handle btnOverBar">swap_vert</i>
-                                    </OverlayTrigger> : null }
+                                        <SwapButton className="material-icons drag-handle btnOverBar">swap_vert</SwapButton>
+                                    </OverlayTrigger> : null}
 
                                     <Overlay rootClose
                                         show={this.state.show === idContainer}
                                         placement="top"
-                                        container={this/* .refs[idContainer]*/}
+                                        container={this}
                                         target={() => ReactDOM.findDOMNode(this.refs['btn-' + idContainer])}
-                                        onHide={() => {this.setState({ show: this.state.show === idContainer ? false : this.state.show });}}>
+                                        onHide={() => { this.setState({ show: this.state.show === idContainer ? false : this.state.show }); }}>
                                         <Popover id="popov" title={i18n.t("delete_container")}>
                                             <i style={{ color: 'yellow', fontSize: '13px', padding: '0 5px' }} className="material-icons">warning</i>
-                                            { i18n.t("messages.delete_container") }
-                                            <br/>
-                                            <br/>
-                                            <Button className="popoverButton"
+                                            {i18n.t("messages.delete_container")}
+                                            <br />
+                                            <br />
+                                            <PopoverButton
                                                 style={{ float: 'right' }}
                                                 onClick={e => {
                                                     this.h.onSortableContainerDeleted(idContainer, box.id);
@@ -136,54 +142,43 @@ class EditorBoxSortable extends Component {
                                                     this.setState({ show: false });
                                                 }} >
                                                 {i18n.t("Accept")}
-                                            </Button>
-                                            <Button className="popoverButton"
+                                            </PopoverButton>
+                                            <PopoverButton
                                                 style={{ float: 'right' }}
-                                                onClick={() => {this.setState({ show: false });}}>
+                                                onClick={() => { this.setState({ show: false }); }}>
                                                 {i18n.t("Cancel")}
-                                            </Button>
+                                            </PopoverButton>
                                         </Popover>
                                     </Overlay>
                                     <OverlayTrigger placement="top" container={this} overlay={
                                         <Tooltip id="deleteTooltip">{i18n.t('delete')}
                                         </Tooltip>}>
-                                        <Button
-                                            onClick={() => {this.setState({ show: idContainer });}}
+                                        <DeleteButton
+                                            onClick={() => { this.setState({ show: idContainer }); }}
                                             ref={'btn-' + idContainer}
-                                            className="material-icons delete-sortable btnOverBar">delete</Button>
+                                            className="material-icons delete-sortable btnOverBar">delete</DeleteButton>
                                     </OverlayTrigger>
 
                                 </div>
 
                             </div>
-                        </div>);
+                        </EditorBoxSortableContainer>);
                     })}
-                </div>
+                </SortableContainerBox>
 
-                <div className="dragContentHere" data-html2canvas-ignore
-                    // style={{ backgroundColor: this.props.background }}
+                <DnDZone data-html2canvas-ignore
                     onClick={e => {
                         this.h.onBoxSelected(-1);
-                        e.stopPropagation();}}>{i18n.t("messages.drag_content")}
-                </div>
+                        e.stopPropagation();
+                    }}>{i18n.t("messages.drag_content")}
+                </DnDZone>
 
-            </div>
+            </Container>
         );
-    }
-
-    componentDidUpdate() {
-        this.props.boxesById[this.props.id].children.map(() => {
-            // this.configureResizable(this.refs[id]);
-        });
     }
 
     componentDidMount() {
         this.configureDropZone(ReactDOM.findDOMNode(this), "newContainer", ".rib");
-        // this.configureDropZone(".editorBoxSortableContainer", "existingContainer", ".rib");
-
-        this.props.boxesById[this.props.id].children.map(() => {
-            // this.configureResizable(this.refs[id]);
-        });
 
         let list = jQuery(this.refs.sortableContainer);
         list.sortable({
@@ -270,8 +265,8 @@ class EditorBoxSortable extends Component {
                             hasHeader
                             backdrop={false}
                             title={<span><i className="material-icons alert-warning" >
-                                        warning</i>{i18n.t("messages.alert")}</span>}
-                            closeButton onClose={() => {this.setState({ alert: null });}}>
+                                warning</i>{i18n.t("messages.alert")}</span>}
+                            closeButton onClose={() => { this.setState({ alert: null }); }}>
                             <span> {i18n.t('messages.instance_limit')} </span>
                         </Alert>);
                         this.setState({ alert: alert });
@@ -350,7 +345,7 @@ class EditorBoxSortable extends Component {
     getNewIndex = (x, y, parent, container, i, j) => {
         let el = document.elementFromPoint(x, y);
         let rc = releaseClick(el, 'box-');
-        let children = this.props.boxesById[parent].sortableContainers[container].children.filter(box=>{return this.props.boxesById[box].row === j && this.props.boxesById[box].col === i;});
+        let children = this.props.boxesById[parent].sortableContainers[container].children.filter(box => { return this.props.boxesById[box].row === j && this.props.boxesById[box].col === i; });
         if (rc) {
             let newInd = children.indexOf(rc);
             return newInd === 0 ? 0 : ((newInd === -1 || newInd >= children.length) ? (children.length) : newInd);
@@ -369,7 +364,7 @@ class EditorBoxSortable extends Component {
                 newRow = [];
                 maxRowHeight = 0;
             }
-            if(curRowTop === 0) {
+            if (curRowTop === 0) {
                 curRowTop = coords.top;
             }
             if (maxRowHeight < coords.height) {
@@ -380,7 +375,7 @@ class EditorBoxSortable extends Component {
                 coordArr.push({ top: curRowTop, maxRowHeight, cols: newRow });
             }
         });
-        coordArr.map((r, inx)=>{
+        coordArr.map((r, inx) => {
             if (inx === 0 && y < r.top) {
                 sameHeight = r.cols;
             }
@@ -392,7 +387,7 @@ class EditorBoxSortable extends Component {
             }
         });
 
-        sameHeight.sort((a, b)=> a.left > b.left);
+        sameHeight.sort((a, b) => a.left > b.left);
         let closestBox = sameHeight[0] || rc;
         sameHeight.map((box, inx) => {
             if (inx === 0 && x < box.left) {
@@ -424,7 +419,8 @@ class EditorBoxSortable extends Component {
             top: rect.top + scrollTop,
             left: rect.left + scrollLeft,
             width: el.clientWidth,
-            height: el.clientHeight };
+            height: el.clientHeight,
+        };
     }
 
 }

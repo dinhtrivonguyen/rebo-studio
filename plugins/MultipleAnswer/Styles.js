@@ -36,7 +36,7 @@ export const AnswerInput = styled.div`
 `;
 
 export const AnswerLetter = styled.div`
-    color: white;
+    color: ${ props => props.contrast ? props.light ? 'black' : 'white' : 'var(--themeColor11, white)' };
     background-color: var(--themeColor1);
     vertical-align: middle;
     width: 1.5em;
@@ -50,9 +50,7 @@ export const AnswerLetter = styled.div`
 `;
 
 export const AnswerText = styled.div`
-      margin: 0.2em 0;
-      margin-left: -1em;
-      margin-right: -1em;
+      margin: 0.2em -1em;
       padding: 0;
       width: 75%;
 `;
@@ -62,7 +60,7 @@ export const CheckboxInput = styled.input.attrs({ type: 'checkbox' })`
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: white;
+    background-color: transparent;
     border: 0.1em solid #ccc;
     transform: scale(1.3);
     padding: 0.3em !important;
@@ -73,7 +71,7 @@ export const CheckboxInput = styled.input.attrs({ type: 'checkbox' })`
     height:0.3em;
     
     &:checked{
-      background-color: white;
+      background-color: transparent;
       border: 0.1em solid #ccc;
       color: #99a1a7;
     }
@@ -84,7 +82,7 @@ export const CheckboxInput = styled.input.attrs({ type: 'checkbox' })`
       line-height: 0.8em;
       font-weight: bold;
       position: absolute;
-      background-color: white;
+      background-color: transparent;
       top: 0;
       left: -0.04em;
       width: 0.7em;

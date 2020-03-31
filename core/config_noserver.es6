@@ -1,6 +1,6 @@
 export default {
     // PATHS
-    version: "3",
+    version: "4",
     xml_path: "ediphy/add_xml", // "http://lamas.dit.upm.es:3000/ediphy_documents/add_xml",
     xml_fake_path: "exercises/ua2_ue10_ejer7.xml",
     exercise_render_template_iframe_src: "./exercises/index.html",
@@ -20,6 +20,11 @@ export default {
     upload_vish_url: false,
     defaultAspectRatio: 16 / 9,
     // OPTIONS
+    transitions_url: "/assets/transitions/",
+    themes_url: "/assets/themes/",
+    themes_absolute_url: "/assets/themes/",
+    theme_css_url: '/assets/theme.css',
+    theme_css_absolute_url: '/assets/theme.css',
     externalProviders: {
         enable_search: true,
         enable_external_upload: false,

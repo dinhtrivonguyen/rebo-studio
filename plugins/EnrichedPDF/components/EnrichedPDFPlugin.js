@@ -127,13 +127,16 @@ export default class EnrichedPDFPlugin extends React.Component {
         let markElements = Object.keys(marks).map((id) => {
             let value = marks[id].value;
             let title = marks[id].title;
-            let color = marks[id].color;
+            let markType = marks[id].markType;
             let position;
             if (value && value.split(',').length === 3) {
                 position = value.split(',');
             } else {
                 position = [0, 0, 0];
             }
+            let content = marks[id].content;
+            let color = marks[id].color;
+            let size = marks[id].size;
             let x = "" + position[0] + "%";
             let y = "" + position[1] + "%";
             let bool = (parseFloat(position[2]) === this.state.pageNumber);
@@ -141,9 +144,12 @@ export default class EnrichedPDFPlugin extends React.Component {
             let isVisor = true;
             return(
                 bool ?
-                    <div key={id} style={{ position: 'absolute', top: y, left: x, width: '24px', height: '26px' }}>
+                    <div key={id} style={{ position: 'absolute', top: y, left: x, transform: "translate(-50%, -50%)" }}>
                         <Mark
+                            markType={markType}
+                            content={content}
                             color={color}
+                            size={size}
                             idKey={id}
                             title={title}
                             isPopUp={isPopUp}

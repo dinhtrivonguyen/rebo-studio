@@ -157,7 +157,7 @@ export function findDescendantNavItems(state, element) {
 export function findNavItemContainingBox(state, element) {
     let containerNav;
     Object.keys(state).forEach(child => {
-        if(state[child].boxes.indexOf(element) !== -1) {
+        if (state[child].boxes.indexOf(element) !== -1) {
             containerNav = state[child];
         }
     });
@@ -176,11 +176,11 @@ export function calculateNewIdOrder(oldArray, newChildren, newParent, itemMoved,
     if (indexInNewChildren !== newChildren.length - 1) {
         splitIndex = oldArrayFiltered.indexOf(newChildren[indexInNewChildren + 1]);
 
-    // We have to look for the next item that has a lower or equal level
-    // If none is found, it means we were dragging to last position, so default value for splitIndex is not changed
+        // We have to look for the next item that has a lower or equal level
+        // If none is found, it means we were dragging to last position, so default value for splitIndex is not changed
     } else {
-        for(let i = oldArrayFiltered.indexOf(newParent) + 1; i < oldArrayFiltered.length; i++) {
-            if(navItems[oldArrayFiltered[i]].level <= navItems[newParent].level) {
+        for (let i = oldArrayFiltered.indexOf(newParent) + 1; i < oldArrayFiltered.length; i++) {
+            if (navItems[oldArrayFiltered[i]].level <= navItems[newParent].level) {
                 splitIndex = i;
                 break;
             }
@@ -224,6 +224,7 @@ export function isAncestorOrSibling(searchingId, actualId, boxes) {
 
     return isAncestorOrSibling(searchingId, parentId, boxes);
 }
+
 /**
  * Calculates next available name for a view
  * @param key Common part of name to look for. Example: "Page ", "Contained view "..
@@ -246,6 +247,7 @@ export function nextAvailName(key, views, name = 'name') {
     }
     return key + " " + 1;
 }
+
 /**
  * Same as previous but with toolbar
  * @param key Common part of name to look for. Example: "Page ", "Contained view "..
@@ -277,6 +279,7 @@ export function nextToolbarAvailName(key, views) {
     }
     return key + " " + 1;
 }
+
 /** **
  * Check if item is in collection
  * @param a: Collection
@@ -478,7 +481,7 @@ export function getDescendantViews(view, views) {
     for (let i = 0; i < view.children.length; i++) {
         let vw = view.children[i];
         selected.push(vw);
-        selected = selected.concat(getDescendantViews(views[vw]), views);
+        selected = selected.concat(getDescendantViews(views[vw], views));
     }
 
     return selected;
@@ -503,13 +506,13 @@ export function getTitles(itemSelected, viewToolbars, navItems, fromCV) {
 
 export function vendorTransform(obj, val) {
     obj.WebkitTransform =
-    obj.MozTransform =
-      obj.msTransform =
-        obj.OTransform =
-          obj.transform = val;
+        obj.MozTransform =
+            obj.msTransform =
+                obj.OTransform =
+                    obj.transform = val;
 }
 
-export function makeBoxes(boxes, newId, props) {
+export function makeBoxes(boxes, newId, props, onBoxAdded) {
     boxes.map((item, index) => {
         let position = {
             x: item.box.x,
@@ -533,13 +536,13 @@ export function makeBoxes(boxes, newId, props) {
         } else if (item.toolbar.url) {
             initialParams.url = item.toolbar.url;
         }
-        createBox(initialParams, item.toolbar.name, true, props.onBoxAdded, props.boxes, item.toolbar.style);
+        createBox(initialParams, item.toolbar.name, true, onBoxAdded, props.boxes, item.toolbar.style);
     });
 }
 
 export function getIndex(parent, container, props) {
     let newInd;
-    if(isSortableContainer(container)) {
+    if (isSortableContainer(container)) {
         let children = props.boxesById[parent].sortableContainers[container].children;
         newInd = children.indexOf(props.boxSelected) + 1;
         newInd = newInd === 0 ? 1 : ((newInd === -1 || newInd >= children.length) ? (children.length) : newInd);
@@ -564,17 +567,22 @@ export function isComplex(pluginName) {
 }
 
 export function get_browser() {
-    let ua = navigator.userAgent, tem, M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-    if((/trident/i).test(M[1])) {
+    let ua = navigator.userAgent, tem,
+        M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if ((/trident/i).test(M[1])) {
         tem = (/\brv[ :]+(\d+)/g).exec(ua) || [];
         return { name: 'IE', version: (tem[1] || '') };
     }
-    if(M[1] === 'Chrome') {
+    if (M[1] === 'Chrome') {
         tem = ua.match(/\bOPR|Edge\/(\d+)/);
-        if(tem !== null) {return { name: 'Opera', version: tem[1] };}
+        if (tem !== null) {
+            return { name: 'Opera', version: tem[1] };
+        }
     }
     M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
-    if((tem = ua.match(/version\/(\d+)/i)) !== null) {M.splice(1, 1, tem[1]);}
+    if ((tem = ua.match(/version\/(\d+)/i)) !== null) {
+        M.splice(1, 1, tem[1]);
+    }
     return {
         name: M[0],
         version: M[1],
@@ -618,4 +626,50 @@ export function checkHyperlink(hyperlink) {
         return hyperlink;
     }
     return false;
+}
+
+// https://stackoverflow.com/questions/54961620/test-if-svg-path-d-property-string-is-valid
+export function isValidSvgPath(s) {
+    const reEverythingAllowed = /[MmZzLlHhVvCcSsQqTtAa0-9-,.\s]/g;
+    const bContainsIllegalCharacter = !!s.replace(reEverythingAllowed, '').length;
+    const bContainsAdjacentLetters = (/[a-zA-Z][a-zA-Z]/).test(s);
+    const bInvalidStart = (/^[0-9-,.]/).test(s);
+    const bInvalidEnd = (/.*[-,.]$/).test(s.trim());
+    return !(bContainsIllegalCharacter || bContainsAdjacentLetters || bInvalidStart || bInvalidEnd);
+}
+
+export function isLightColor(color) {
+
+    // Variables for red, green, blue values
+    let r, g, b, hsp;
+
+    // Check the format of the color, HEX or RGB?
+    if (color.match(/^rgb/)) {
+
+        // If HEX --> store the red, green, blue values in separate variables
+        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+
+        r = color[1];
+        g = color[2];
+        b = color[3];
+    } else {
+
+        // If RGB --> Convert it to HEX: http://gist.github.com/983661
+        color = +("0x" + color.slice(1).replace(
+            color.length < 5 && /./g, '$&$&'));
+
+        r = color >> 16;
+        g = color >> 8 & 255;
+        b = color & 255;
+    }
+
+    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+    hsp = Math.sqrt(
+        0.299 * (r * r) +
+        0.587 * (g * g) +
+        0.114 * (b * b)
+    );
+
+    // Using the HSP value, determine whether the color is light or dark
+    return (hsp > 173);
 }

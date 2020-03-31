@@ -23,10 +23,10 @@ export const DEFINITION = {
     font: 'Maven Pro',
     background: {
         f16_9: [
-            'url(./themes/vish5/background_images/vish5_169.png)',
+            'vish5_169.png',
         ],
         f4_3: [
-            'url(./themes/vish5/background_images/vish5_43.jpg)',
+            'vish5_43.jpg',
         ],
     },
     colors: {
@@ -36,11 +36,14 @@ export const DEFINITION = {
         themeColor4: '#ffcd5e',
         themeColor5: '#f0719a',
         themeColor6: '#004ba8',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#F62B73',
+        themeColor10: 'white',
     },
     images: {
-        template1: { left: '#3b86e3' },
-        template3: { topLeft: 'topLeft.png', topRight: 'topRight.png', bottomLeft: 'bottomLeft.png', bottomRight: 'bottomRight.png' },
-        template7: { left: 'placeholder.svg' },
+        template1: { left: 'left.jpg' },
+        template3: { topLeft: 'vish.svg', topRight: 'vish.svg', bottomLeft: 'vish.svg', bottomRight: 'vish.svg' },
+        template7: { left: 'vish.svg' },
     },
 };
 

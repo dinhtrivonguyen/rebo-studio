@@ -1,6 +1,7 @@
 import { FontManager } from 'font-picker';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { FontPickerContainer } from "./Styles";
 
 /**
  * React interface for the font picker
@@ -154,7 +155,7 @@ export default class FontPicker extends Component {
                 (
                     <li key={'33'}>
                         <button
-                            style={ { borderTop: '1px solid #c3c3c3', borderBottom: '1px dashed #c3c3c3', fontFamily: this.props.options.themeFont }}
+                            style={ { width: '100%', borderTop: '1px solid #c3c3c3', borderBottom: '1px dashed #c3c3c3', fontFamily: this.props.options.themeFont }}
                             type="button"
                             className={`font-${themeFontId}${this.pickerSuffix} ${themeFont.family === this.state.activeFont ? ' active-font' : ''}`}
                             onClick={() => {
@@ -203,19 +204,19 @@ export default class FontPicker extends Component {
         let activeFontId = this.props.activeFont.replace(/\s+/g, '-').toLowerCase();
 
         return (
-            <div id={`font-picker${this.pickerSuffix}`} className={"font-picker-container"} title={this.state.errorText} style={{ width: '100%', color: 'black' }}>
+            <FontPickerContainer id={`font-picker${this.pickerSuffix}`} title={this.state.errorText}>
                 <button
                     type="button"
                     className={`dropdown-button ${this.state.expanded ? 'expanded' : ''}`}
                     onClick={this.toggleExpanded}
                     onKeyPress={this.toggleExpanded}
-                    style={{ backgroundColor: 'white' }}
+                    style={{ backgroundColor: 'white', width: '100%' }}
                 >
                     <p className={`dropdown-font-name ${activeFontId ? 'font-' + activeFontId + this.pickerSuffix : ''}`}>{this.state.activeFont}</p>
                     <div className={`dropdown-icon ${this.state.loadingStatus}`} />
                 </button>
                 {this.state.loadingStatus === 'finished' && fontList}
-            </div>
+            </FontPickerContainer>
         );
     }
 }

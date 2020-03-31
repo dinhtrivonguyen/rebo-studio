@@ -23,16 +23,16 @@ export const DEFINITION = {
     font: 'Bree Serif',
     background: {
         f16_9: [
-            'url(./themes/paint/background_images/paint_169.jpg)',
-            'url(./themes/paint/background_images/paint_169_12.jpg)',
-            'url(./themes/paint/background_images/paint_169_2.jpg)',
-            'url(./themes/paint/background_images/paint_169_1.jpg)',
+            'paint_169.jpg',
+            'paint_169_12.jpg',
+            'paint_169_2.jpg',
+            'paint_169_1.jpg',
         ],
         f4_3: [
-            'url(./themes/paint/background_images/paint_43.jpg)',
-            'url(./themes/paint/background_images/paint_43_12.jpg)',
-            'url(./themes/paint/background_images/paint_43_2.jpg)',
-            'url(./themes/paint/background_images/paint_43_1.jpg)',
+            'paint_43.jpg',
+            'paint_43_12.jpg',
+            'paint_43_2.jpg',
+            'paint_43_1.jpg',
         ],
     },
     colors: {
@@ -43,6 +43,9 @@ export const DEFINITION = {
         themeColor5: '#8FADC1',
         themeColor6: '#401813',
         themeColor7: '#3E3839',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#B6D2C6',
+        themeColor10: '#ffffff',
     },
     images: {
         template1: { left: 'left.jpg', background: 3 },

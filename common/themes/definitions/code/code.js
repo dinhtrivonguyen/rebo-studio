@@ -23,10 +23,10 @@ export const DEFINITION = {
     font: 'Source Code Pro',
     background: {
         f16_9: [
-            'url(./themes/code/background_images/code_169.jpg)',
+            'code_169.jpg',
         ],
         f4_3: [
-            'url(./themes/code/background_images/code_43.jpg)',
+            'code_43.jpg',
         ],
     },
     colors: {
@@ -36,6 +36,9 @@ export const DEFINITION = {
         themeColor4: '#FFE40B',
         themeColor5: '#6BD5EA',
         themeColor6: '#FFFFFF',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#F62B73',
+        themeColor10: 'black',
     },
     images: {
         template1: { left: 'left.jpg' },

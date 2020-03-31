@@ -23,10 +23,10 @@ export const DEFINITION = {
     font: 'Permanent Marker',
     background: {
         f16_9: [
-            'url(./themes/urban/background_images/urban_169.jpg)',
+            'urban_169.jpg',
         ],
         f4_3: [
-            'url(./themes/urban/background_images/urban_43.jpg)',
+            'urban_43.jpg',
         ],
     },
     colors: {
@@ -37,10 +37,13 @@ export const DEFINITION = {
         themeColor5: '#525252',
         themeColor6: '#000000',
         themeColor7: '#FFFFFF',
+        themeColor8: '#FFFFFF',
+        themeColor9: '#F62B73',
+        themeColor10: 'white',
     },
     images: {
         template1: { left: 'left.jpg' },
-        template3: { topLeft: 'topLeft.png', topRight: 'topRight.png', bottomLeft: 'bottomLeft.png', bottomRight: 'bottomRight.png' },
+        template3: { topLeft: 'city1.jpg', topRight: 'city2.jpg', bottomLeft: 'city3.jpeg', bottomRight: 'city4.jpg' },
         template7: { left: 'seven.jpg' },
     },
 };

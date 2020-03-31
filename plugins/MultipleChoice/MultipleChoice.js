@@ -20,6 +20,8 @@ import {
     MultipleChoicePlugin,
     RadioInput,
 } from "./Styles";
+import { PRIMARY_BLUE } from "../../sass/general/constants";
+import { isLightColor } from "../../common/utils";
 
 /* eslint-disable react/prop-types */
 
@@ -64,6 +66,11 @@ export const MultipleChoice = () => ({
                             type: 'custom_color_plugin',
                             value: state.quizColor || getComputedStyle(document.documentElement).getPropertyValue('--themeColor1'),
                         },
+                        contrast: {
+                            __name: 'Improve contrast',
+                            type: 'checkbox',
+                            checked: state.contrast,
+                        },
                     },
                 },
                 style: QUIZ_STYLE,
@@ -75,34 +82,38 @@ export const MultipleChoice = () => ({
         showFeedback: true,
         letters: i18n.t("MultipleChoice.ShowLetters"),
         quizColor: { color: document.documentElement.style.getPropertyValue('--themeColor1'), custom: false },
+        contrast: false,
     }),
     getRenderTemplate: (state, props = {}) => {
         let correctAnswers = "";
-        let quizColor = state.quizColor.color;
-        let customColor = generateCustomColors(quizColor, 1, true);
-        let customStyle = { ...customColor };
-
+        let quizColor = state.quizColor.color || PRIMARY_BLUE;
+        let customStyle = state.quizColor.custom ? generateCustomColors(quizColor, 1, true) : null;
         const clickHandler = e => props.setCorrectAnswer(parseInt(e.target.value, 10));
         const isCorrect = i => props.exercises.correctAnswer === i;
 
         const Answer = i => (
             <AnswerRow key={i + 1} className={"row answerRow"}>
                 <AnswerInput>
-                    <AnswerLetter>{(state.letters === i18n.t("MultipleChoice.ShowLetters")) ? letterFromNumber(i) : (i + 1)}</AnswerLetter>
+                    <AnswerLetter light={isLightColor(quizColor)} contrast={state.contrast}>{(state.letters === i18n.t("MultipleChoice.ShowLetters")) ? letterFromNumber(i) : (i + 1)}</AnswerLetter>
                     <RadioInput name={props.id} value={i} checked={isCorrect(i)}
-                        onChange={clickHandler} />
+                        onChange={clickHandler}/>
                 </AnswerInput>
                 <AnswerText>
                     <PluginPlaceholder {...props} key={i + 1}
                         pluginContainerName={i18n.t("MultipleChoice.Answer") + " " + (i + 1)}
-                        pluginDefaultContent={[{ plugin: 'BasicText', initialState: { __text: '<p>' + i18n.t("MultipleChoice.Answer") + " " + (1 + i) + '</p>' } }]}
-                        pluginContainer={"Answer" + i} />
+                        pluginDefaultContent={[{
+                            plugin: 'BasicText',
+                            initialState: { __text: '<p>' + i18n.t("MultipleChoice.Answer") + " " + (1 + i) + '</p>' },
+                        }]}
+                        pluginContainer={"Answer" + i}/>
                 </AnswerText>
             </AnswerRow>
         );
 
         const answers = [...Array(state.nBoxes)].map((a, i) => {
-            if (isCorrect(i)) {correctAnswers += state.letters === i18n.t("MultipleChoice.ShowLetters") ? letterFromNumber(i) : (i + 1);}
+            if (isCorrect(i)) {
+                correctAnswers += state.letters === i18n.t("MultipleChoice.ShowLetters") ? letterFromNumber(i) : (i + 1);
+            }
             return Answer(i);
         });
 
@@ -111,7 +122,10 @@ export const MultipleChoice = () => ({
                 <QuestionRow key={0}>
                     <PluginPlaceholder {...props} key="1"
                         pluginContainerName={i18n.t("MultipleChoice.Question")}
-                        pluginDefaultContent={[{ plugin: 'BasicText', initialState: { __text: '<p>' + i18n.t("MultipleChoice.Statement") + '</p>' } }]}
+                        pluginDefaultContent={[{
+                            plugin: 'BasicText',
+                            initialState: { __text: '<p>' + i18n.t("MultipleChoice.Statement") + '</p>' },
+                        }]}
                         pluginContainer={"Question"}/>
                 </QuestionRow>
                 {answers}
@@ -120,12 +134,16 @@ export const MultipleChoice = () => ({
                         <PluginPlaceholder {...props} key="-2"
                             pluginContainerName={i18n.t("MultipleChoice.Feedback")}
                             pluginContainer={"Feedback"}
-                            pluginDefaultContent={[{ plugin: 'BasicText', initialState: { __text: '<p>' + i18n.t("MultipleChoice.FeedbackMsg") + '</p>' } }]}
+                            pluginDefaultContent={[{
+                                plugin: 'BasicText',
+                                initialState: { __text: '<p>' + i18n.t("MultipleChoice.FeedbackMsg") + '</p>' },
+                            }]}
                         />
                     </Feedback>
                 </FeedbackRow>
                 <CorrectAnswerFeedback>
-                    <CorrectAnswerLabel className="correctAnswerLabel"> {i18n.t("MultipleChoice.correctAnswerFeedback") }:</CorrectAnswerLabel> {correctAnswers}
+                    <CorrectAnswerLabel
+                        className="correctAnswerLabel"> {i18n.t("MultipleChoice.correctAnswerFeedback")}:</CorrectAnswerLabel> {correctAnswers}
                 </CorrectAnswerFeedback>
                 <style dangerouslySetInnerHTML={{
                     __html: RadioStyleDangerous('multipleChoicePlugin'),

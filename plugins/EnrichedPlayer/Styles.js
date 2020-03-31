@@ -6,8 +6,8 @@ export const BLUE_PRIMARY = '#17cfc8';
 export const PlayerPlugin = styled(CustomRange)`
   width: 100%;
   height: 100%;
-  pointer-events: none;
   overflow: hidden;
+  pointer-events: none;
   cursor: default;
   iframe{
     margin-bottom: -0.25em;
@@ -29,13 +29,10 @@ export const MediaControls = styled.div`
     margin: 0;
     display: flex;
     align-content: center;
+    align-items: center;
     @include gradient;
     height: 2.5em;
     opacity: 0.7;
-    -webkit-transition: opacity .3s;
-    -moz-transition: opacity .3s;
-    -o-transition: opacity .3s;
-    -ms-transition: opacity .3s;
     transition: opacity .3s;
     pointer-events: all;
     &:hover{
@@ -74,9 +71,8 @@ export const Play = styled(PlayerButton)`
 `;
 
 export const Progress = styled.div.attrs({ className: 'progress-player-input dropableRichZone' })`
-    height: 1.7em;
     position: relative;
-    bottom: 0.3em;
+    //bottom: 0.3em;
     background: transparent;
     float:left;
     -webkit-appearance: none;
@@ -91,7 +87,7 @@ export const FakeProgress = styled.div.attrs({ className: "fakeProgress" })`
       position: absolute;
       width: 100%;
       z-index: ${props => props.visor ? '0' : undefined};
-      top: ${props => props.visor ? '0' : '0.3em'};
+      top: 0;
 `;
 
 export const FullScreen = styled(PlayerButton)`
@@ -112,7 +108,8 @@ export const Duration = styled.div`
 `;
 
 export const Volume = styled.input.attrs({ type: 'range', min: '0', max: '1', step: 'any' })`
-    float:left;
+    background-color: transparent;
+    width: 15% !important;
 `;
 
 export const MainSlider = styled.div.attrs({ className: 'mainSlider' })`
@@ -122,7 +119,7 @@ export const MainSlider = styled.div.attrs({ className: 'mainSlider' })`
       position: absolute;
       margin-top: -0.1em;
       z-index: 9999;
-      top: 0.3em;
+      //top: 0.3em;
 `;
 
 export const VideoMark = styled.div`

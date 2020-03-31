@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 // Green
 export const ADAMS_GREEN = '#133329';
 export const DISABLED_GREEN = 'rgba(255,255,255,0.5)';
@@ -9,6 +11,7 @@ export const DETAIL_GREEN_TRANSPARENT = 'rgba(57, 181, 74, 0.1)';
 // Blue
 export const PRIMARY_BLUE = '#17CFC8';
 export const PRIMARY_BLUE_TRANSPARENT = 'rgba(23, 207, 200, 0.1)';
+export const PRIMARY_BLUE_SEMI_TRANSPARENT = 'rgba(23, 207, 200, 0.5)';
 export const MEDIUM_BLUE = '#14B6B0';
 export const PRIMARY_BLUE_DARK = '#0E817D';
 
@@ -25,10 +28,10 @@ export const BRAND_ORANGE = '#F47920';
 export const ADAMS_GREY = '#888';
 export const LIGHTER_GREY = '#DEDEDE';
 export const BACKGROUND_GREY = '#555';
-export const MEDDIUM_GREY = '#9A9A9A';
+export const MEDIUM_GREY = '#9A9A9A';
 export const DARK_GREY = '#111';
 export const LIGHT_GREY = '#C4C4C4';
-export const LIGTHEST_GREY = '#F5F5F5';
+export const LIGHTEST_GREY = '#F5F5F5';
 export const DARKEST_GREY = '#2C2C2C';
 export const GREY_RIBBON_PLUGIN_NAMES = '#4D4D4D';
 export const GREY_NAVITEM_SELECTED = '#545454';
@@ -42,3 +45,4 @@ export const DARK_INPUT = '#FFFFFF';
 // Box border
 export const BOX_BORDER_WIDTH = '1px';
 
+export const MatIcon = styled.i.attrs({ className: 'material-icons' })``;

@@ -23,13 +23,13 @@ export const DEFINITION = {
     font: 'Indie Flower',
     background: {
         f16_9: [
-            'url(./themes/natural/background_images/natural_169.jpg)',
-            'url(./themes/natural/background_images/natural_169_1.jpg)',
+            'natural_169.jpg',
+            'natural_169_1.jpg',
             '#D5CCC5',
         ],
         f4_3: [
-            'url(./themes/natural/background_images/natural_43.jpg)',
-            'url(./themes/natural/background_images/natural_43_1.jpg)',
+            'natural_43.jpg',
+            'natural_43_1.jpg',
             '#D5CCC5',
         ],
     },
@@ -40,6 +40,9 @@ export const DEFINITION = {
         themeColor4: '#999975',
         themeColor5: '#763325',
         themeColor6: '#33441A',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#F62B73',
+        themeColor10: 'white',
     },
     images: {
         template1: { left: 'left.jpg', background: 1 },

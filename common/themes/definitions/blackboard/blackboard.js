@@ -23,10 +23,10 @@ export const DEFINITION = {
     font: 'Gloria Hallelujah',
     background: {
         f16_9: [
-            'url(./themes/blackboard/background_images/blackboard_169.jpg)',
+            'blackboard_169.jpg',
         ],
         f4_3: [
-            'url(./themes/blackboard/background_images/blackboard_43.jpg)',
+            'blackboard_43.jpg',
         ],
     },
     colors: {
@@ -36,6 +36,9 @@ export const DEFINITION = {
         themeColor4: '#9BDEEB',
         themeColor5: '#FEC997',
         themeColor6: '#FFFFFF',
+        themeColor8: 'rgba(0,0,0,0)',
+        themeColor9: '#C6E58C',
+        themeColor10: 'black',
     },
     images: {
         template1: { left: 'left.jpg' },

@@ -10,23 +10,18 @@ import { makeBoxes } from "../../../../common/utils";
 import TemplateThumbnail from "./TemplateThumbnail";
 
 import { getThemeTemplates } from "../../../../common/themes/themeLoader";
-import './_templatesModal.scss';
-import handleNavItems from "../../../handlers/handleNavItems";
+import { EDModal } from "../../../../sass/general/EDModal";
+import { ItemsContainer, TemplateItem, TemplateName } from "./Styles";
+import _handlers from "../../../handlers/_handlers";
 
 class TemplatesModal extends Component {
-    constructor(props) {
-        super(props);
-        this.index = 0;
-        this.templates = templates();
-        /**
-         * Component's initial state
-         */
-        this.state = {
-            itemSelected: -1,
-        };
 
-        this.hN = handleNavItems(this);
-    }
+    state = {
+        itemSelected: -1,
+    };
+
+    index = 0;
+    templates = templates();
 
     unselect = () => this.setState({ itemSelected: -1 });
     doubleClickAdd = () => {
@@ -38,39 +33,34 @@ class TemplatesModal extends Component {
         let themeTemplates = getThemeTemplates(this.props.styleConfig.theme);
         templatesCopy = templatesCopy.concat(themeTemplates);
         return (
-            <Modal className="pageModal" id="TemplatesModal" show={this.props.show}>
+            <EDModal className="pageModal" id="TemplatesModal" show={this.props.show}>
                 <Modal.Header>
                     <Modal.Title><span id="previewTitle">Elige una plantilla</span></Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="gcModalBody" style={{ overFlowY: 'auto' }}>
-                    <div className="items_container">
-                        <div id="empty"
-                            className="template_item"
+                    <ItemsContainer>
+                        <TemplateItem id="empty" selected={this.state.itemSelected === -1}
                             key="-1"
-                            style={{ width: '120px', height: '80px', border: this.state.itemSelected === -1 ? "solid #17CFC8 3px" : "solid #eee 1px", position: 'relative' }}
-                            onClick={() => {
-                                this.setState({
-                                    itemSelected: -1,
-                                });
-                            }}
+                            onClick={this.unselect}
                             onDoubleClick={this.doubleClickAdd}>
-                            <div className={'template_name'} style={{ display: this.state.itemSelected === -1 ? 'block' : 'none' }}>{i18n.t('templates.template0')}</div>
-                        </div>
+                            <TemplateName selected={this.state.itemSelected === -1}
+                                children={i18n.t('templates.template0')}/>
+                        </TemplateItem>
                         {templatesCopy.map((item, index) => {
-                            let border = this.state.itemSelected === index ? "solid #17CFC8 3px" : "solid #eee 1px";
                             let backgroundColor = item.hasOwnProperty('backgroundColor') ? item.backgroundColor : '#ffffff';
-                            return (<div key={index} className="template_item" style={{ position: 'relative', border: border, width: '120px', height: '80px', backgroundColor: backgroundColor }}
-                                onClick={() => { this.setState({ itemSelected: index });}}
+                            return (<TemplateItem key={index} selected={this.state.itemSelected === index}
+                                backgroundColor={backgroundColor}
+                                onClick={() => this.setState({ itemSelected: index })}
                                 onDoubleClick={() => {
                                     this.setState({ itemSelected: index });
                                     this.AddNavItem(index);
                                 }}>
                                 <TemplateThumbnail key={index} index={index} boxes={item.boxes}/>
-                                <div className={'template_name'} style={{ display: this.state.itemSelected === index ? 'block' : 'none' }}>{item.name}</div>
-                            </div>
+                                <TemplateName selected={this.state.itemSelected === index} children={item.name}/>
+                            </TemplateItem>
                             );
                         })}
-                    </div>
+                    </ItemsContainer>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="default" id="import_file_button" onClick={ e => {
@@ -78,7 +68,7 @@ class TemplatesModal extends Component {
                     }}>{i18n.t("importFile.footer.cancel")}</Button>
                     <Button bsStyle="primary" id="cancel_button" onClick={ (e) => {
                         if(this.props.fromRich) {
-                            this.getBoxes(this.state.itemSelected);
+                            this.getBoxes(this.state.itemSelected, templatesCopy);
                             this.closeModal();
                         } else {
                             this.AddNavItem(this.state.itemSelected);
@@ -89,7 +79,7 @@ class TemplatesModal extends Component {
                         e.stopPropagation();
                     }}>{i18n.t("importFile.footer.ok")}</Button>
                 </Modal.Footer>
-            </Modal>
+            </EDModal>
         );
     }
 
@@ -102,10 +92,10 @@ class TemplatesModal extends Component {
         this.props.close();
     }
 
-    getBoxes(itemSelected) {
+    getBoxes(itemSelected, themeTemplates) {
         let boxes = [];
         if (itemSelected !== -1) {
-            let selectedTemplate = this.templates[itemSelected];
+            let selectedTemplate = themeTemplates[itemSelected];
             boxes = selectedTemplate.boxes;
         }
         this.props.templateClick(boxes);
@@ -136,7 +126,7 @@ class TemplatesModal extends Component {
                 let selectedTemplate = templatesCopy[template];
                 let boxes = selectedTemplate.boxes;
 
-                makeBoxes(boxes, newId, this.props);
+                makeBoxes(boxes, newId, this.props, this.props.onBoxAdded);
             }
             // reset state
             this.setState({

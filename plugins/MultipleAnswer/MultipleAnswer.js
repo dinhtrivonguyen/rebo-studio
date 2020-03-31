@@ -20,7 +20,8 @@ import {
     FeedbackRow,
     QuestionRow,
 } from "../../sass/exercises";
-import { removeLastChar } from "../../common/utils";
+import { isLightColor, removeLastChar } from "../../common/utils";
+import { PRIMARY_BLUE } from "../../sass/general/constants";
 /* eslint-disable react/prop-types */
 
 export const MultipleAnswer = () => ({
@@ -70,6 +71,11 @@ export const MultipleAnswer = () => ({
                                 type: 'custom_color_plugin',
                                 value: state.quizColor || getComputedStyle(document.documentElement).getPropertyValue('--themeColor1'),
                             },
+                            contrast: {
+                                __name: 'Improve contrast',
+                                type: 'checkbox',
+                                checked: state.contrast,
+                            },
                         },
                     },
                     style: QUIZ_STYLE,
@@ -82,12 +88,13 @@ export const MultipleAnswer = () => ({
         showFeedback: true,
         letters: i18n.t("MultipleAnswer.ShowLetters"),
         allowPartialScore: false,
-        quizColor: { color: 'rgba(0, 173, 156, 1)', custom: false },
+        quizColor: { color: document.documentElement.style.getPropertyValue('--themeColor1'), custom: false },
+        contrast: false,
     }),
     getRenderTemplate: function(state, props = {}) {
         let correctAnswers = "";
-        const quizColor = state.quizColor.color;
-        const customStyle = generateCustomColors(quizColor, 1, true);
+        let quizColor = state.quizColor.color || PRIMARY_BLUE;
+        let customStyle = state.quizColor.custom ? generateCustomColors(quizColor, 1, true) : null;
         const showLetters = state.letters === i18n.t("MultipleChoice.ShowLetters");
 
         const checked = i => (props.exercises.correctAnswer instanceof Array) && props.exercises.correctAnswer.indexOf(i) > -1;
@@ -105,7 +112,7 @@ export const MultipleAnswer = () => ({
         const Answer = i => (
             <AnswerRow key={i + 1}>
                 <AnswerInput>
-                    <AnswerLetter>
+                    <AnswerLetter light={isLightColor(quizColor)} contrast={state.contrast}>
                         {(state.letters === i18n.t("MultipleAnswer.ShowLetters")) ? letterFromNumber(i) : (i + 1)}
                     </AnswerLetter>
                     <CheckboxInput name={props.id} value={i} checked={checked(i)} onChange={() => clickHandler(i)}/>

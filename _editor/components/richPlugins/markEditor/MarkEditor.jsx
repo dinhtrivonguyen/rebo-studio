@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { findParentBySelector } from '../../../../common/utils';
-import './_markEditor.scss';
 import _handlers from "../../../handlers/_handlers";
+import { MarkEditorContainer } from "./Styles";
 /*
 * Component wrapper for editing marks by dragging them
 * @example <ClickNHold onClickNHold={e=>{...}} // callback
@@ -83,15 +83,16 @@ export default class MarkEditor extends Component {
         classList += this.state.ended ? 'ended ' : '';
         classList += this.state.editing ? 'editing' : '';
         return (
-            <div draggable="true"
+            <MarkEditorContainer
+                editing={this.state.editing}
+                holding={this.state.holding}
+                draggable="true"
                 className={classList}
                 style={this.props.style}
                 onMouseDown={this.start}
                 onTouchStart={this.start}
                 onMouseUp={this.end}
-                onMouseEnter={()=>{
-                    this.props.base.pointerEventsCallback('mouseenter', this.props.state);
-                }}
+                onMouseEnter={()=>{ this.props.base.pointerEventsCallback('mouseenter', this.props.state);}}
                 onMouseLeave={(e)=>{
                     let bool = findParentBySelector(ReactDOM.findDOMNode(this), '.pointerEventsEnabled');
                     this.props.base.pointerEventsCallback('mouseleave_' + (bool && !this.state.editing ? 'true' : 'false'), this.props.state);
@@ -101,9 +102,9 @@ export default class MarkEditor extends Component {
                 onTouchEnd={this.end}
                 onDragStart={(e)=>{e.stopPropagation();}}
                 onDoubleClick={(e) => e.stopPropagation()}
-                onDrag={(e)=>e.stopPropagation()} >
+                onDrag={(e)=>e.stopPropagation()}>
                 {this.props.children}
-            </div>
+            </MarkEditorContainer>
         );
     }
 
@@ -185,7 +186,6 @@ export default class MarkEditor extends Component {
             const width = square.right - square.left;
             const height = square.bottom - square.top;
             const value = parseRichMarkInput(x, y, width, height, toolbarState, boxId);
-
             document.body.style.cursor = 'default';
             boxStyle.classList.remove('norotate');
             document.documentElement.removeEventListener('mouseup', clickOutside, true);

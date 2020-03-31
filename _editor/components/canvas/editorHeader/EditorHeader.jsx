@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BreadcrumbItem, FormControl } from 'react-bootstrap';
+import { Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import i18n from 'i18next';
-import './_editorHeader.scss';
 import CVInfo from "./CVInfo";
 import { connect } from "react-redux";
 import _handlers from "../../../handlers/_handlers";
+import { BreadCrumb, Cab, CabTableNumber, EditCourseTitle, EditNavSubtitle, EditNavTitle, TitleBox, Title } from "./Styles";
 
 /**
  *  EditorHeaderComponent
@@ -76,15 +76,16 @@ class EditorHeader extends Component {
             }
             if (currentNavItem.id !== 0) {
                 let hide = true;
+
                 for (let i in toolbar) {
                     if (toolbar[i] !== 'hidden') {
                         hide = false;
                         break;
                     }
                 }
-
+                let classes = this.props.isDoc ? "title ediphyHeader canvasDoc" : "title ediphyHeader";
                 return (
-                    <div className="title ediphyHeader" onClick={(e) => {
+                    <Title className={classes} onClick={e => {
                         this.h.onBoxSelected(-1);
                         e.stopPropagation();
                     }}>
@@ -93,13 +94,9 @@ class EditorHeader extends Component {
                             display: (!hide && titles.length !== 0) ? 'initial' : 'none',
                         }}>
                             {/* <div className={this.props.showButtons ? "caja selectedTitle selectedBox" : "caja"} > */}
-                            <div className={"caja"}>
-                                <div className="cab">
-
-                                    <div className="cabtabla_numero"
-                                        style={{ display: (toolbar.numPage === 'hidden' || !pagenumber) ? 'none' : 'block' }}
-                                    >{pagenumber}</div>
-
+                            <TitleBox>
+                                <Cab>
+                                    <CabTableNumber hide={toolbar.numPage === 'hidden' || !pagenumber} children={pagenumber}/>
                                     <div className="tit_ud_cap">
                                         {/* Course title*/}
                                         {!this.state.editingTitle ?
@@ -115,10 +112,9 @@ class EditorHeader extends Component {
                                             }}
                                             style={{ display: (toolbar.courseTitle === 'hidden') ? 'none' : 'block' }}>{courseTitle}</h1>
                                             ) :
-                                            (<FormControl
+                                            (<EditCourseTitle
                                                 type="text"
                                                 ref="titleIndex"
-                                                className={"editCourseTitle"}
                                                 value={this.state.currentTitle}
                                                 autoFocus
                                                 onKeyDown={e=> {
@@ -158,10 +154,9 @@ class EditorHeader extends Component {
                                             }}
                                             style={{ display: (toolbar.documentTitle === 'hidden') ? 'none' : 'block' }}>{docTitle}</h2>
                                             ) :
-                                            (<FormControl
+                                            (<EditNavTitle
                                                 type="text"
                                                 ref="titleNavIndex"
-                                                className={"editNavTitle"}
                                                 value={this.state.currentNavTitle}
                                                 autoFocus
                                                 onKeyDown={e=> {
@@ -201,10 +196,9 @@ class EditorHeader extends Component {
                                             }}
                                             style={{ display: (toolbar.documentSubtitle === 'hidden') ? 'none' : 'block' }}>{subTitle}</h3>
                                             ) :
-                                            (<FormControl
+                                            (<EditNavSubtitle
                                                 type="text"
                                                 ref="SubtitleNavIndex"
-                                                className={"editNavSubTitle"}
                                                 value={this.state.currentNavSubTitle}
                                                 autoFocus
                                                 onKeyDown={e=> {
@@ -230,17 +224,14 @@ class EditorHeader extends Component {
                                                     this.setState({ editingNavSubTitle: !this.state.editingNavSubTitle });
                                                     this.h.onViewTitleChanged(currentNavItem.id, { documentSubtitleContent: (this.state.currentNavSubTitle.length > 0) ? this.state.currentNavSubTitle : this.getDefaultValue() });
                                                 }} />)}
-                                        <div className="contenido"
-                                            style={{ display: (toolbar.breadcrumb === 'hidden') ? 'none' : 'block' }}>
-                                            {content}
-                                        </div>
+                                        <BreadCrumb doc={this.props.isDoc} hide={toolbar.breadcrumb === 'hidden'} children={content}/>
                                     </div>
 
                                     <div style={{ display: 'none' }} className="clear"/>
-                                </div>
-                            </div>
+                                </Cab>
+                            </TitleBox>
                         </div>
-                    </div>
+                    </Title>
                 );
             }
         }
@@ -265,6 +256,10 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(EditorHeader);
 
 EditorHeader.propTypes = {
+    /**
+     * Current view is a document
+     */
+    isDoc: PropTypes.any,
     /**
      * Object containing view titles
      */

@@ -22,11 +22,11 @@ export const DEFINITION = {
     font: 'Libre Franklin',
     background: {
         f16_9: [
-            'url(./themes/desktop/backgroundImages/desktop_169.jpg)',
+            'desktop_169.jpg',
             '#FDFDFD',
         ],
         f4_3: [
-            'url(./themes/desktop/background_images/desktop_43.jpg)',
+            'desktop_43.jpg',
             '#FDFDFD',
         ],
     },
@@ -37,6 +37,9 @@ export const DEFINITION = {
         themeColor4: '#C86A6D',
         themeColor5: '#C86A6D',
         themeColor6: '#000000',
+        themeColor8: '#ffffff',
+        themeColor9: '#F62B73',
+        themeColor10: 'white',
     },
     images: {
         template1: { left: 'left.jpg' },

@@ -2,8 +2,7 @@ import React from "react";
 import GoogleMapReact from 'google-map-react';
 import Mark from '../../../common/components/mark/Mark';
 import i18n from 'i18next';
-import { MiddleAlign, NoInternetBox } from "../Styles";
-import { MapPlugin } from "VirtualTour/Styles";
+import { MiddleAlign, NoInternetBox, MapPlugin } from "../Styles";
 
 window.mapsVisor = [];
 /* eslint-disable react/prop-types */
@@ -32,11 +31,18 @@ export function VirtualTour() {
             let markElements = Object.keys(marks).map((e) =>{
                 let position = marks[e].value.split(',');
                 let title = marks[e].title;
+                let content = marks[e].content;
                 let color = marks[e].color;
+                let size = marks[e].size;
+                let markType = marks[e].markType;
                 let isPopUp = marks[e].connectMode === "popup";
                 let isVisor = true;
                 return(
-                    <Mark key={e} lat={position[0]} lng={position[1]} color={color}
+                    <Mark key={e} lat={position[0]} lng={position[1]}
+                        content={content}
+                        color={color}
+                        size={size}
+                        markType={markType}
                         idKey={e}
                         title={title}
                         isPopUp={isPopUp}
