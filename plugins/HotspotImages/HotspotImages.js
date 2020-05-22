@@ -3,6 +3,7 @@ import i18n from 'i18next';
 import MarkEditor from '../../_editor/components/richPlugins/markEditor/MarkEditor';
 import Mark from '../../common/components/mark/Mark';
 import img_placeholder from './../../dist/images/placeholder.svg';
+import broken_link from './../../dist/images/nothing-found.svg';
 import Image from "./Image";
 import _handlers from "../../_editor/handlers/_handlers";
 import { isValidSvgPath } from "../../common/utils";
@@ -129,6 +130,7 @@ export const HotspotImages = (base) => ({
     getInitialState: function() {
         return {
             url: img_placeholder, // Ediphy.Config.image_placeholder,
+            errorUrl: broken_link,
             allowDeformed: true,
         };
     },
@@ -152,8 +154,8 @@ export const HotspotImages = (base) => ({
                 return null;
             }
             return (
-                <MarkEditor key={id} style={{ position: 'absolute', transform: "translate(-50%, -50%)", top: position[0] + "%", left: position[1] + "%", width: width, height: "auto" }} time={1.5} dispatch={ props.dispatch } onRichMarkMoved={_handlers({ props }).onRichMarkMoved} mark={id} base={base} marks={marks} state={state}>
-                    <Mark style={{ position: 'absolute', top: position[0] + "%", left: position[1] + "%" }} idKey={id} title={title} isImage markType={markType} content={content} color={color} size={size}/>
+                <MarkEditor key={id} style={{ position: 'absolute', transform: "translate(-50%, -100%)", top: position[0] + "%", left: position[1] + "%", width: width, height: "auto" }} dispatch={ props.dispatch } onRichMarkMoved={_handlers({ props }).onRichMarkMoved} mark={id} base={base} marks={marks} state={state}>
+                    <Mark pluginType={'img'} style={{ position: 'absolute', top: position[0] + "%", left: position[1] + "%" }} idKey={id} title={title} isImage markType={markType} content={content} color={color} size={size}/>
                 </MarkEditor>
             );
         });
@@ -162,7 +164,7 @@ export const HotspotImages = (base) => ({
                 style={{ position: 'absolute', pointerEvents: 'none' }}
                 height={'100%'} width={'100%'}
                 preserveAspectRatio="none">
-                <path d={mark.content.svg.svgPath} fill={mark.color || '#000'}/>
+                <path d={mark.content.svg.svgPath} stroke={mark.content.secretArea ? 'rgba(0,0,0,0.35)' : 'transparent' } fill={mark.content.secretArea ? 'rgba(255,255,255,0.4)' : mark.color || '#000'}/>
             </svg>
         ));
 

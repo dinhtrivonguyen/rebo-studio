@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { OverlayTrigger, Tooltip, Popover } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import { IconContainer, ImageContainer } from "./Styles";
 
 export default class Mark extends Component {
     constructor(props) {
@@ -35,14 +36,19 @@ export default class Mark extends Component {
         switch(markType) {
         case "icon":
             let color = this.props.color || "black";
-            let size = (this.props.content.size / 10) + 'em' || '1em';
+            let size = (this.props.size / 10) + 'em' || '1em';
             let text = this.props.content.selectedIcon ? this.props.content.selectedIcon : "room";
-            return <i key="i" style={{ color: color, fontSize: size }} className="material-icons">{text}</i>;
+            return <IconContainer key="i"
+                style={{ color: color,
+                    fontSize: size,
+                    transform: this.props.pluginType === 'player' ? 'translate(calc(-50% + 5px), -100%)'
+                        : this.props.pluginType === 'map' ? 'translate(-50%, 0)' : null }}
+                className="material-icons">{text}</IconContainer>;
         case "image":
             let isHotspotImage = this.props.isImage === true;
             let width = isHotspotImage ? "100%" : String(this.props.content.imageDimensions.width) + "em";
             let img = this.props.content.url;
-            return <img alt={"iconImage"} height="auto" width={width} onLoad={this.onImgLoad} src={img}/>;
+            return <ImageContainer alt={"iconImage"} height="auto" width={width} onLoad={this.onImgLoad} src={img}/>;
         default:
             return <h4>Error</h4>;
         }
@@ -75,6 +81,10 @@ Mark.propTypes = {
      *markType of the mark: image, icon or area
      */
     markType: PropTypes.string,
+    /**
+     *Number of dimensions of the drobpable area of the calling plugin
+     */
+    pluginType: PropTypes.oneOf(['img', 'player', 'map', 'pdf']),
     /**
      * Id of the mark
      */

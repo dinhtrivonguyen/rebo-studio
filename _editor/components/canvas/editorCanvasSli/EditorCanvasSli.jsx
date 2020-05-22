@@ -62,7 +62,7 @@ class EditorCanvasSli extends Component {
                     display: containedViewSelected !== 0 && !fromCV ? 'none' : 'initial',
                     fontSize: this.state.fontBase ? (this.state.fontBase + 'px') : '14px',
                 }}>
-                <AirLayer id={fromCV ? 'airlayer_cv' : 'airlayer'}
+                <AirLayer id={fromCV ? 'airlayer_cv' : 'airlayer'} slide
                     className={'slide_air parentRestrict'}
                     style={{
                         margin: 'auto', visibility: (showCanvas ? 'visible' : 'hidden'),
@@ -179,7 +179,7 @@ class EditorCanvasSli extends Component {
     aspectRatio = (props = this.props, state = this.state) => {
         let ar = props.globalConfig.canvasRatio;
         let fromCV = props.fromCV;
-        let itemSelected = fromCV ? props.containedViewSelected : props.navItemSelected;
+        let itemSelected = props.fromCV ? props.containedViewsById[props.containedViewSelected] : props.navItemsById[props.navItemSelected];
         let customSize = itemSelected.customSize;
         let calculated = aspectRatioFunction(ar, fromCV ? 'airlayer_cv' : 'airlayer', fromCV ? 'containedCanvas' : 'canvas', customSize);
         let { width, height, marginTop, marginBottom } = state;
@@ -203,7 +203,7 @@ class EditorCanvasSli extends Component {
 
     hideTitle = e => {
         if (e.target === e.currentTarget) {
-            this.h.onBoxSelected(-1);
+            this.deselectBoxes();
             this.setState({ showTitle: false });
         }
         e.stopPropagation();
@@ -284,7 +284,9 @@ class EditorCanvasSli extends Component {
         this.setState({ fontBase: changeFontBase(calculated.width) });
     };
 
-    deselectBoxes = () => this.h.onBoxSelected(-1);
+    deselectBoxes = () => {
+        this.h.onBoxSelected(-1);
+    }
 }
 
 export default connect(mapStateToProps)(EditorCanvasSli);

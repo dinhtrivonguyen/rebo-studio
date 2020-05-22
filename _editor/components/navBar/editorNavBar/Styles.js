@@ -50,6 +50,14 @@ export const NavButtons = styled.div.attrs({ className: 'navButtons' })`
 }
 `;
 
+export const ToggleButton = styled.div`
+display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  
+`;
+
 export const NavButton = styled.button`
   display: inline-grid;
   border: none;
@@ -73,6 +81,7 @@ export const NavButton = styled.button`
   }
   &:hover {
     color: ${DARKEST_GREY};
+    
   }
   .material-icons{
     font-size: 22px;
@@ -141,7 +150,6 @@ export const PluginButton = styled(NavButton).attrs({ className: 'navButtonPlug'
   &:hover {
     background-color: ${GREY_PANEL_HEADINGS};
     color: white;
-    @include scale(1);
   }
 `;
 

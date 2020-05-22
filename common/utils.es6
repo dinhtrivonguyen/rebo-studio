@@ -658,8 +658,11 @@ export function isLightColor(color) {
         color = +("0x" + color.slice(1).replace(
             color.length < 5 && /./g, '$&$&'));
 
+        // eslint-disable-next-line no-bitwise
         r = color >> 16;
+        // eslint-disable-next-line no-bitwise
         g = color >> 8 & 255;
+        // eslint-disable-next-line no-bitwise
         b = color & 255;
     }
 
@@ -746,4 +749,11 @@ export function offset(id) {
         width: el.clientWidth,
         height: el.clientHeight,
     };
+}
+
+export function decodeURIComponentSafe(s) {
+    if (!s) {
+        return s;
+    }
+    return decodeURIComponent(s.replace(/%(?![0-9][0-9a-fA-F]+)/g, '%25'));
 }

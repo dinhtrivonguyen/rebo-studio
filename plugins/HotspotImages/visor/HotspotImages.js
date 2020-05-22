@@ -13,7 +13,7 @@ export function HotspotImages() {
             let markElements = Object.keys(marks).map((e) =>{
                 let { value, title, markType, content, color, size } = marks[e];
                 let position = (value && value.split(',').length === 2) ? value.split(',') : [0, 0];
-                let width = markType === "image" ? String(marks[e].content.size.width) + "%" : null;
+                let width = markType === "image" ? String(marks[e].content.imageDimensions.width) + "%" : null;
                 let isPopUp = marks[e].connectMode === "popup";
                 let isVisor = true;
                 if (markType === 'area') {
@@ -21,8 +21,9 @@ export function HotspotImages() {
                     return null;
                 }
                 return(
-                    <div key={e} style={{ position: 'absolute', top: position[0] + "%", left: position[1] + "%", width, height: "auto" }}>
+                    <div key={e} style={{ position: 'absolute', transform: "translate(-50%, -100%)", top: position[0] + "%", left: position[1] + "%", width: width, height: "auto" }}>
                         <Mark
+                            pluginType={'img'}
                             markType={markType}
                             content={content}
                             isImage
@@ -43,7 +44,7 @@ export function HotspotImages() {
                     style={{ position: 'absolute', pointerEvents: 'none' }}
                     height={'100%'} width={'100%'}
                     preserveAspectRatio="none">
-                    <path d={mark.content.svg.svgPath} fill={mark.color || '#000'} style={{ pointerEvents: 'all', cursor: mark.content?.secretArea ? 'default' : 'pointer' }}
+                    <path d={mark.content.svg.svgPath} fill={mark.color || '#000'} style={{ pointerEvents: 'all', cursor: mark.content?.changeCursor ? 'pointer' : 'default' }}
                         onClick={() => props.onMarkClicked(props.id, mark.value)}
                     />
                 </svg>

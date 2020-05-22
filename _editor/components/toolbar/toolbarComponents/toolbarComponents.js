@@ -21,6 +21,7 @@ import RadioButtonFormGroup from "../radioButtonFormGroup/RadioButtonFormGroup";
 import React from "react";
 import handleModals from "../../../handlers/handleModals";
 import { RangeOutput, ToolbarButton } from "./Styles";
+import { MatIcon } from "../../../../sass/general/constants";
 
 export const Checkbox = (button, onChange, props) => {
     return (
@@ -114,7 +115,7 @@ export const ConditionalText = (button, props, onChange) => {
                 {button.actualType === 'range' ? button.value : null}
             </RangeOutput>
             {delete props.accordionChecked}
-            <FormControl {...props} onChange={onChange}/>
+            <FormControl {...props} onChange={onChange} onBlur={onChange}/>
         </FormGroup>
     );
 };
@@ -156,8 +157,13 @@ export const Size = (button, onChange, props, accordionKeys, buttonKey, toolbar_
                                 {advancedPanel}
                             </Popover>
                         }>
-                        <InputGroup.Addon className="gc_addon">
-                            <i className="material-icons gridconficons">settings</i>
+                        <InputGroup.Addon className="gc_addon"
+                            style={{
+                                border: 'none',
+                                borderRadius: 0,
+                                cursor: 'pointer',
+                                backgroundColor: 'white' }}>
+                            <MatIcon style={{ fontSize: '14px' }}>settings</MatIcon>
                         </InputGroup.Addon>
                     </OverlayTrigger>
                 </InputGroup>

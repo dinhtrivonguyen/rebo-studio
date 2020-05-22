@@ -12,10 +12,14 @@ export const Canvas = styled(Col)`
   .canvasSliClass {
     padding: 33px 8px 33px 8px;
   }
+  .scrollcontainer {
+    min-height: 100%;
+  }
 `;
 
 export const AirLayer = styled.div`
    vertical-align: middle;
+   box-shadow: ${props => props.slide ? 'grey 1px 1px 20px' : 'none'};
    &.doc_air{
      height: 100%;
      overflow: hidden;
