@@ -28,7 +28,7 @@ class EditorNavBar extends Component
         return (
             <IconBar>
                 <Gradient/>
-                <Logo><ED/>iphy</Logo>
+                <Logo><REBO/>Studio.</Logo>
                 <PluginsMenu/>
                 <NavActionButtons
                     save={this.props.handleExportImport.save}
