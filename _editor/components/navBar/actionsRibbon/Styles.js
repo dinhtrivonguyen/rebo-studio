@@ -4,7 +4,7 @@ import { MEDIUM_GREY, PRIMARY_BLUE } from "../../../../sass/general/constants";
 
 export const ActionRibbonContainer = styled(Col).attrs({ id: 'ActionRibbon' })`
   height: ${ props => props.height ? props.height : null };
-  background-color: #dedede;
+  background-color: #FFFFFF;
   box-shadow: inset 0px 3px 5px 0px rgba(179,179,179,1);
   padding: 0;
   z-index: 0;

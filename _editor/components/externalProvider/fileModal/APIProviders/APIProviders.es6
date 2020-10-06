@@ -88,7 +88,7 @@ export default function menus(self) {
                 onBoxAdded: self.props.onBoxAdded,
             },
         },
-        {
+        /*        {
             name: 'VISH',
             icon: VISHIcon,
             show: !(avatar) ? ((allowedMIME && allowedMIME !== 'csv') ? allowedMIME : false) : false,
@@ -125,7 +125,7 @@ export default function menus(self) {
             component: YoutubeComponent,
             props: { ...commonProps },
         },
-        {
+        /*        {
             name: 'Flickr',
             icon: FlickrIcon,
             show: !(avatar) && (allowedMIME === "*" || allowedMIME.match('image')),
