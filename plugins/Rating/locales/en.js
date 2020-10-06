@@ -3,7 +3,7 @@ module.exports = {
     "Rating": {
         "PluginName": "Rating",
         "content_box_name": "Content ",
-        "Statement": "This is a Multiple Choice question with a single correct answer. You can write here the question statement",
+        "Statement": "Đây là một câu hỏi nhiều lựa chọn với một câu trả lời đúng duy nhất. Bạn có thể chỉnh sửa câu hỏi ở dưới đây",
         "Question": "Question",
         "Feedback": "Feedback",
         "FeedbackMsg": "Here you can provide some feedback about the answer. In order to disable this feature, turn it off in the toolbar.",
